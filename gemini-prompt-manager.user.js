@@ -1,9 +1,8 @@
 // ==UserScript==
-// @name         Gemini Prompt Manager (Favorites & UI)
+// @name         Gemini Prompt Manager
 // @namespace    tanersb
-// @version      1.3
-// @description  A stylish prompt menu with favorites feature for Google Gemini
-// @description:tr Gemini için favorileme özellikli şık prompt menüsü
+// @version      1.5
+// @description  A stylish prompt menu with favorites, drag-drop and rename features for Google Gemini
 // @author       tanersb
 // @match        https://gemini.google.com/*
 // @grant        GM_addStyle
@@ -19,9 +18,9 @@
 (function() {
     'use strict';
 
-
     const promptList = [
-        // --- GTA Serisi ---
+// --- GTA Serisi ---
+
         { id: "gta-v", url: "https://www.promptbul.org/prompt/gta-v", prompt: `{    "ABSOLUTE_OVERRIDE_RULE": {      "priority": "HIGHEST",      "instruction": "The uploaded reference image MUST NOT be reused, traced, filtered, color-graded, or partially preserved in any way. Reusing original pixels is a hard failure.",      "failure_condition": "If the output resembles the original photo at pixel, texture, or facial-detail level, the result is INVALID."    },    "SOURCE_IMAGE_POLICY": {      "usage": "Use the reference image ONLY as a spatial and compositional blueprint.",      "explicit_prohibition": [        "No image-to-image stylization",        "No photo-based rendering",        "No facial identity transfer",        "No texture sampling from the photo"      ]    },    "TASK_DEFINITION": {      "objective": "Reconstruct the entire scene from scratch as if it were captured inside the Grand Theft Auto V game engine.",      "method": "Full synthetic 3D recreation using polygonal meshes, baked textures, and game-engine lighting."    },    "STYLE_AND_ENGINE_CONSTRAINTS": {      "engine": "GTA V RAGE Engine (2013–2015 era)",      "visual_identity": [        "Clearly polygonal character models",        "Game-engine skin shaders (slightly waxy, non-photoreal)",        "Repeating environment textures with visible tiling",        "LOD-style geometry simplification"      ],      "strictly_avoid": [        "Photorealism",        "AI-upscaled realism",        "Cinematic CGI renders",        "Photo-like skin pores or cloth fibers"      ]    },    "CHARACTER_RECONSTRUCTION_RULES": {      "identity": "Characters must resemble generic GTA V NPCs or protagonists, NOT the real person.",      "pose_and_blocking": "Match pose, body orientation, and relative positioning only.",      "face_rule": "Faces must look like GTA NPC meshes — simplified topology, not real human likeness."    },    "ENVIRONMENT_TRANSLATION": {      "world": "Los Santos equivalent environment only.",      "object_mapping_examples": {        "smartphone": "in-game iFruit phone prop",        "street": "GTA asphalt texture with decals",        "buildings": "Los Santos modular architecture assets",        "vegetation": "GTA V foliage system"      },      "background_rule": "The background must look like an open-world game map, not a photographed city."    },    "LIGHTING_AND_RENDERING": {      "lighting_model": "Real-time GTA V lighting and shadow system",      "atmosphere": "Subtle in-game haze and distance fog",      "camera": "Standard third-person or free-roam gameplay camera"    },    "OUTPUT_SPECIFICATION": {      "format": "4K in-game screenshot look",      "ui": "NO HUD, NO minimap, NO UI",      "focus": "Gameplay-level sharpness, visible textures, no cinematic blur"    },    "NEGATIVE_PROMPT": [      "Original photo preserved",      "Filtered photograph",      "Same face as reference",      "Hyper-real skin",      "Cinematic movie still",      "AI photo realism",      "Loading screen illustration",      "Concept art painting style"    ]  } ` },
         { id: "gta-efekti", url: "https://www.promptbul.org/prompts/gta-efekti", prompt: `{    "ABSOLUTE_OVERRIDE_RULE": {      "priority": "HIGHEST",      "instruction": "The uploaded reference image MUST NOT be reused, traced, filtered, color-graded, or partially preserved in any way. Reusing original pixels is a hard failure.",      "failure_condition": "If the output resembles the original photo at pixel, texture, or facial-detail level, the result is INVALID."    },    "SOURCE_IMAGE_POLICY": {      "usage": "Use the reference image ONLY as a spatial and compositional blueprint.",      "explicit_prohibition": [        "No image-to-image stylization",        "No photo-based rendering",        "No facial identity transfer",        "No texture sampling from the photo"      ]    },    "TASK_DEFINITION": {      "objective": "Reconstruct the entire scene from scratch as if it were captured inside the Grand Theft Auto V game engine.",      "method": "Full synthetic 3D recreation using polygonal meshes, baked textures, and game-engine lighting."    },    "STYLE_AND_ENGINE_CONSTRAINTS": {      "engine": "GTA V RAGE Engine (2013–2015 era)",      "visual_identity": [        "Clearly polygonal character models",        "Game-engine skin shaders (slightly waxy, non-photoreal)",        "Repeating environment textures with visible tiling",        "LOD-style geometry simplification"      ],      "strictly_avoid": [        "Photorealism",        "AI-upscaled realism",        "Cinematic CGI renders",        "Photo-like skin pores or cloth fibers"      ]    },    "CHARACTER_RECONSTRUCTION_RULES": {      "identity": "Characters must resemble generic GTA V NPCs or protagonists, NOT the real person.",      "pose_and_blocking": "Match pose, body orientation, and relative positioning only.",      "face_rule": "Faces must look like GTA NPC meshes — simplified topology, not real human likeness."    },    "ENVIRONMENT_TRANSLATION": {      "world": "Los Santos equivalent environment only.",      "object_mapping_examples": {        "smartphone": "in-game iFruit phone prop",        "street": "GTA asphalt texture with decals",        "buildings": "Los Santos modular architecture assets",        "vegetation": "GTA V foliage system"      },      "background_rule": "The background must look like an open-world game map, not a photographed city."    },    "LIGHTING_AND_RENDERING": {      "lighting_model": "Real-time GTA V lighting and shadow system",      "atmosphere": "Subtle in-game haze and distance fog",      "camera": "Standard third-person or free-roam gameplay camera"    },    "OUTPUT_SPECIFICATION": {      "format": "4K in-game screenshot look",      "ui": "NO HUD, NO minimap, NO UI",      "focus": "Gameplay-level sharpness, visible textures, no cinematic blur"    },    "NEGATIVE_PROMPT": [      "Original photo preserved",      "Filtered photograph",      "Same face as reference",      "Hyper-real skin",      "Cinematic movie still",      "AI photo realism",      "Loading screen illustration",      "Concept art painting style"    ]  }` },
         { id: "gta-avatar", url: "https://www.promptbul.org/prompts/gta-avatar", prompt: `{  "subject": "Transform the subject(s) from the uploaded image(s) into a full-body realistic 3D character model suitable for the Grand Theft Auto V gameplay environment. MUST include legs and feet, even if not present in reference.",  "style_and_aesthetic": {  "primary_style": "Match the in-game graphics aesthetic of Grand Theft Auto V (RAGE engine). Focus on realistic, slightly gritty textures for skin, cloth, denim, and leather. The rendering should look like a high-quality character snapshot taken directly from the game engine, not a pre-rendered cinematic or 2D illustration.",  "lighting": "Realistic outdoor game lighting e.g.. Strong, natural highlights and defined shadows that give depth to clothing folds and facial features.",  "avoid": [  "LEGO or plastic toy aesthetics",  "2D Loading Screen illustration style cel-shading",  "Cartoon or exaggerated proportions",  "Hyper-realistic photography (must still feel like a game)",  "Smooth, textureless surfaces",  "Cropped images (no half-body renders)"  ]  },  "subject_details_to_retain": {  "identity_preservation": "Translate the subject's upper clothing, hair style, and accessories realistically. Hair should have strands and texture. Clothing should appear as real fabric with weight and natural folds appropriate for the material.",  "facial_features": "Recreate the facial expression and features realistically based on the reference. The skin tone, eye color, and facial structure must be an accurate, realistic match to the person in the reference image, rendered with game-appropriate skin shaders.",  "clothing_printing": "Convert all specific clothing logos, patterns, and branding from the reference image into high-detail realistic textures applied to the fabric."  },  "character_integration": {  "body_proportions": "Use realistic adult human proportions typical of GTA V protagonists. CRITICAL: If the reference image is cropped, mentally extend and complete the body. Generate realistic legs, feet, and appropriate footwear e.g. that match the style of the upper body clothing.",  "pose_translation": "Adapt the subject's original upper body pose into a complete, natural, realistic human full-body stance standing firmly on the ground. The entire body, from head to feet, must be pose-consistent.",  "multi_subject_handling": "If two subjects are present, transform BOTH into separate, complete full-body in-game character models standing side-by-side."  },  "game_world_elements": {  "optional_held_items": "If a subject is holding a distinct object, replace it with a realistically modeled in-game equivalent with realistic textures."  },  "output_requirements": {  "framing": "MANDATORY FULL-BODY VIEW. The entire character from the top of the head to the bottom of the feet must be fully visible and centered in the frame. The camera should be positioned to show the complete model standing on an invisible ground plane.",  "background": "Transparent background only (PNG). No game scenery, streets, or environments.",  "render_quality": "High-quality game engine render. Sharp focus on the entire character model, crisp textures on clothing, and detailed footwear."  },  "negative_prompt": {  "forbidden_styles": [  "LEGO studs",  "Plastic skin sheen",  "Cartoon eyes",  "Low-resolution textures",  "Painted-on clothing look",  "Anime style",  "Blurry render"  ],  "cropping_constraints": "Do not crop the image. Do not cut off the feet or legs. The final output must not be a portrait or half-body shot."  } }` },
@@ -34,7 +33,9 @@
         { id: "rdr2", url: "https://www.promptbul.org/prompts/red-dead-redemption2", prompt: `{ "CRITICAL_FAILURE_PREVENTION": { "Must_Read": "Do NOT just apply a 'Wild West filter' or color grading. The goal is a total reconstruction using game assets. Do not retain modern geometry.", "Instruction": "You must interpret the input image purely as a layout blueprint. You must destroy the original pixels and regenerate the entire scene from scratch using 3D polygons and high-fidelity game textures that mimic the Red Dead Redemption 2 RAGE engine (set in 1899)." }, "subject": "A complete remake of the provided reference image scene into a realistic in-game screenshot from Red Dead Redemption 2.", "style_and_aesthetic": { "primary_style": "RDR2 Gameplay Graphics. The image must look like a highly detailed, organic, and weathered realtime render from high-end PC hardware. It is NOT live-action film.", "texture_replacement_rule": "MANDATORY: All surfaces must be RDR2 in-game textures. Modern fabrics turn into heavy wool, leather, and cotton with baked mud/dust. Pavement turns into mud, dirt paths with hoof prints, or wooden boardwalks." }, "composition_and_framing": { "blueprint_usage": "Use the reference image as a strict guide for camera angle, perspective, and placement of subjects.", "allowed_deviation": "Deviations are expected where modern objects are replaced by bulkier period-appropriate models." }, "scene_translation_details": { "characters_and_clothing": "Rebuild all humans as detailed RDR2 character meshes. Strive to maintain the facial features and resemblance of the original persons as closely as the game engine allows. Convert modern clothing into 1899 attire while maintaining the original silhouette. SPECIFIC RULE: If a subject is wearing a modern helmet, replace it completely with a bandana covering the lower face and a period-appropriate cowboy hat.", "vehicles_and_mounts": "Analyze modern vehicles and replace accordingly: 1. Motorcycles: Replace with a saddled horse of the exact same color tone as the motorcycle. 2. Normal Cars: Replace with appropriate wooden wagons or stagecoaches. 3. Ultra-Luxury Cars: Replace with rare, early-era motor carriages suitable for 1899 (to denote wealth) instead of wagons.", "environment_and_buildings": "Substitute all modern architecture with 1899 American Frontier equivalents (weathered wood structures, brick saloons). Remove all modern tech (phones, streetlights become gas lamps)." }, "lighting_and_atmosphere": "Recreate the lighting direction and mood from the reference using RDR2's volumetric lighting and weather system. Emphasize atmospheric dust and haze.", "output_requirements": { "type": "Clean 4K gameplay screenshot. No UI/HUD.", "sharpness": "Standard gameplay camera focus. Detailed textures must be visible." }, "negative_prompt": { "forbidden_elements": [ "Modern items (cars, helmets, phones, tarmac)", "Applying a simple sepia filter", "GTA V style graphics", "Hyper-realistic photography", "HUD, UI, Minimap", "Clean/pristine textures" ] } }. ` },
         { id: "rdr2-copy", url: "https://www.promptbul.org/prompts/red-dead-redemption2-copy", prompt: `{ "CRITICAL_FAILURE_PREVENTION": { "Must_Read": "Do NOT just apply a 'Wild West filter' or color grading. The goal is a total reconstruction using game assets. Do not retain modern geometry.", "Instruction": "You must interpret the input image purely as a layout blueprint. You must destroy the original pixels and regenerate the entire scene from scratch using 3D polygons and high-fidelity game textures that mimic the Red Dead Redemption 2 RAGE engine (set in 1899)." }, "subject": "A complete remake of the provided reference image scene into a realistic in-game screenshot from Red Dead Redemption 2.", "style_and_aesthetic": { "primary_style": "RDR2 Gameplay Graphics. The image must look like a highly detailed, organic, and weathered realtime render from high-end PC hardware. It is NOT live-action film.", "texture_replacement_rule": "MANDATORY: All surfaces must be RDR2 in-game textures. Modern fabrics turn into heavy wool, leather, and cotton with baked mud/dust. Pavement turns into mud, dirt paths with hoof prints, or wooden boardwalks." }, "composition_and_framing": { "blueprint_usage": "Use the reference image as a strict guide for camera angle, perspective, and placement of subjects.", "allowed_deviation": "Deviations are expected where modern objects are replaced by bulkier period-appropriate models." }, "scene_translation_details": { "characters_and_clothing": "Rebuild all humans as detailed RDR2 character meshes. Strive to maintain the facial features and resemblance of the original persons as closely as the game engine allows. Convert modern clothing into 1899 attire while maintaining the original silhouette. SPECIFIC RULE: If a subject is wearing a modern helmet, replace it completely with a bandana covering the lower face and a period-appropriate cowboy hat.", "vehicles_and_mounts": "Analyze modern vehicles and replace accordingly: 1. Motorcycles: Replace with a saddled horse of the exact same color tone as the motorcycle. 2. Normal Cars: Replace with appropriate wooden wagons or stagecoaches. 3. Ultra-Luxury Cars: Replace with rare, early-era motor carriages suitable for 1899 (to denote wealth) instead of wagons.", "environment_and_buildings": "Substitute all modern architecture with 1899 American Frontier equivalents (weathered wood structures, brick saloons). Remove all modern tech (phones, streetlights become gas lamps)." }, "lighting_and_atmosphere": "Recreate the lighting direction and mood from the reference using RDR2's volumetric lighting and weather system. Emphasize atmospheric dust and haze.", "output_requirements": { "type": "Clean 4K gameplay screenshot. No UI/HUD.", "sharpness": "Standard gameplay camera focus. Detailed textures must be visible." }, "negative_prompt": { "forbidden_elements": [ "Modern items (cars, helmets, phones, tarmac)", "Applying a simple sepia filter", "GTA V style graphics", "Hyper-realistic photography", "HUD, UI, Minimap", "Clean/pristine textures" ] } }. ` },
 
+
         // --- Anime ---
+
         { id: "aot-1", url: "https://www.promptbul.org/prompts/attack-on-titan-1", prompt: `{  "subject": "Transform the subject from the uploaded image into an Attack on Titan (Shingeki no Kyojin) anime style soldier from the Survey Corps, while retaining unique personal accessories.",  "style_and_aesthetic": {  "primary_style": "Match the official Attack on Titan anime art style: gritty cel-shading, heavy and dramatic shadow work (especially under the neck, on folds, and defining muscles), thick character outlines, and a muted, earthy color palette. The overall feel should be intense and battle-worn.",  "avoid": [  "Clean/glossy anime finish",  "Bright saturated colors like Naruto",  "Soft diffused lighting"  ]  },  "subject_details_to_retain": {  "identity_preservation": "Keep the subject's facial features, skin tone, hairstyle, and expression recognizable.",  "accessory_integration": "Crucial: Identify distinct personal accessories from the reference image (e.g., necklaces, rings, bracelets, watches, specific scarves, unique headwear, or handheld items other than clothes) and retain them. Integrate these items naturally with the Survey Corps uniform. For example, a necklace is worn visible at the neck of the uniform shirt, rings are on the fingers holding the swords, or a personal scarf is tucked into the jacket collar."  },  "character_integration": {  "body_proportions": "Athletic, soldier-like build suitable for high-mobility combat. Lean but muscular frame.",  "attire_strategy": "The base clothing must be the AoT uniform, but personal accessories are layered over or combined with it, rather than completely replaced."  },  "aot_world_elements": {  "mandatory_outfit_base": [  "Survey Corps Beige Short Jacket: 'Wings of Freedom' insignia clearly visible on back/shoulders.",  "Standard AoT Uniform Underlayer: White/off-white shirt, dark brown trousers, knee-high boots.",  "Full-body leather harness straps worn over the jacket and trousers."  ],  "mandatory_gear": [  "Omni-Directional Mobility (ODM) Gear: Hip-mounted mechanisms, large gas canisters attached to the back/legs, and control handles."  ],  "mandatory_weapons": [  "Dual Ultrahard Steel Blades (snap-off swords) held firmly in both hands."  ],  "rendering_style": "All elements, including the retained personal accessories, must be rendered with the gritty, textured detail of the AoT anime (weathered metal, worn leather)."  },  "output_requirements": {  "framing": "Full-body character, head-to-toe fully visible to showcase the uniform, gear, and retained accessories.",  "background": "Transparent background only; no scenery.",  "render_quality": "High-quality cel-shaded anime illustration consistent with Attack on Titan TV series production quality."  },  "negative_prompt": {  "forbidden_styles": [  "Clean Naruto style",  "Chibi style",  "Grayscale only"  ],  "constraints": "Do not remove small personal items like jewelry or distinctive accessories from the original image. Do not retain large bulky modern clothing (like a modern puffer jacket instead of the AoT jacket), but DO retain the smaller personal details."  } }` },
         { id: "aot-2", url: "https://www.promptbul.org/prompts/attack-on-titan-2", prompt: `{  "subject": "Transform the subject from the uploaded image into an Attack on Titan (Shingeki no Kyojin) anime style soldier, mirroring the exact pose and activity from the reference photo.",  "style_and_aesthetic": {  "primary_style": "Official Attack on Titan anime art style: heavy and dramatic cel-shading, thick outlines, muted and earthy color palette (browns, moss greens, dusty greys). The atmosphere should feel serious and gritty.",  "avoid": [  "Generic standing poses",  "Bright/saturated colors",  "Clean/modern pop-anime looks"  ]  },  "pose_and_context_adaptation": {  "pose_mirroring": "Carefully analyze the subject's pose in the uploaded photo and replicate it. If the subject is sitting, show the soldier sitting (perhaps on a crate or a bench). If the subject is eating/cooking, show them with AoT-era field rations or a campfire cauldron. If the subject is smoking, show them in a serious, battle-worn moment with a cigarette.",  "action_context": "Translate modern activities into the AoT military world. For example, if the subject is holding a phone, replace it with a map or a blade handle while keeping the hand position identical. If they are leaning against a car, they should now be leaning against a wooden cart or a stone wall.",  "interaction_with_gear": "Ensure the ODM gear and swords are positioned naturally around the mirrored pose. If sitting, the gear should rest on their hips/thighs realistically."  },  "subject_details_to_retain": {  "identity_preservation": "Keep the subject's face, hair, skin tone, and expression. Adapt the expression to be more 'anime-intense' while keeping the original emotion.",  "accessory_retention": "MANDATORY: Retain all personal accessories from the original image (necklaces, rings, bracelets, glasses, or unique items). Render these accessories in the AoT art style and integrate them into the soldier's uniform."  },  "aot_world_elements": {  "mandatory_outfit": [  "Survey Corps Uniform: Beige short jacket with 'Wings of Freedom' patch, brown harness straps, white shirt, and dark trousers.",  "Omni-Directional Mobility (ODM) Gear: Fully rendered with gas tanks and wire mechanisms, adapted to the current pose.",  "Dual Blades: The subject should be holding or have the blades nearby, matching the original photo's hand gestures."  ]  },  "output_requirements": {  "framing": "Match the framing of the original photo (Full-body, upper-body, etc.) but ensure all AoT gear is visible.",  "background": "Transparent background only; focus entirely on the character and their immediate activity-related props.",  "render_quality": "High-quality cel-shaded anime illustration consistent with Wit Studio / MAPPA AoT production quality."  },  "negative_prompt": {  "forbidden_styles": ["Clean digital art", "Bright colors", "Vibrant lighting"],  "constraints": "Do not ignore the subject's original activity. Do not give a generic standing pose if the subject is doing something else. Do not remove personal jewelry or accessories."  } }` },
         { id: "demon-slayer-avatar", url: "https://www.promptbul.org/prompts/demon-slayer-avatar", prompt: `{  "subject": "Transform the subject from the uploaded image into a character in the style of the Demon Slayer (Kimetsu no Yaiba) TV anime series, specifically adopting the aesthetic of main characters like Tanjiro, Nezuko, or Zenitsu.",  "style_and_aesthetic": {  "primary_style": "Match the official Demon Slayer (ufotable studio) anime art style: distinct ink-brush style varying line weights (sumi-e influence), highly saturated and vibrant colors, sharp cel-shading with subtle gradients within shadows, and high-budget TV-series finish.",  "key_visual_elements": [  "Textured clothing folds mimicking traditional Japanese fabric",  "Thick, expressive outer contour lines"  ],  "avoid": [  "Generic modern anime style",  "Naruto style shinobi aesthetics",  "Loose pencil sketching",  "Flat, unshaded colors"  ]  },  "subject_details_to_retain": {  "identity_preservation": "Keep the subject's clothing base structure, hairstyle form, accessories, skin tone, expression, and pose clearly recognizable, but adapt them to the target art style.",  "clothing_stylization": "Reinterpret the subject's clothing with a Taisho-era Japanese aesthetic. Add Demon Slayer specific textures; if applicable, convert outer layers into a 'Haori' (kimono jacket) with bold, repeating patterns characteristic of main characters checkered.",  "demon_slayer_uniform_integration": "Optionally integrate elements of the standard black Demon Slayer corps uniform (gakuran style jacket with white belt and leg wraps) underneath their original clothes or stylized outer garment."  },  "character_integration": {  "body_proportions": "Use proportions consistent with Demon Slayer anime characters: grounded, dynamic, and expressive.",  "facial_features": "Crucial: Transform face to the distinct Demon Slayer style. Eyes must be large, very expressive, with highly detailed, multi-colored irises containing unique patterns and thick upper lash lines. Simplified but angular nose and mouth.",  "breathing_style_effects": "Highly recommended: Add distinct Ukiyo-e (woodblock print) inspired 'Breathing Style' effects around the character or their weapon. Examples: flowing blue water waves with white crests (Water Breathing), bright yellow lightning streaks (Thunder Breathing), or stylized fire embers (Flame Breathing)."  },  "demon_slayer_world_elements": {  "optional_props": [  "Nichirin Sword (katana) with a distinct handguard (tsuba) carried at the waist",  "Kyahan (traditional leg wraps)",  "Zori or Waraji sandals with tabi socks"  ],  "rendering_style": "All props must be rendered with the signature ink-outlined, high-detail Demon Slayer visual style."  },  "output_requirements": {  "framing": "Full-body character, head-to-toe fully visible, dynamic stance preferred.",  "background": "Transparent background only; no scenery, no gradients, and no patterns.",  "render_quality": "High-quality cel-shaded anime illustration consistent with ufotable production quality."  },  "negative_prompt": {  "forbidden_styles": [  "Manga-style sketching",  "Cross-hatching",  "Grayscale shading",  "American cartoon style"  ],  "clothing_constraints": "Do not completely replace the subject's original clothing identity; stlize it heavily to fit the Demon Slayer universe aesthetic (Taisho era feel) while keeping the original structure recognizable."  } }` },
@@ -42,7 +43,8 @@
         { id: "naruto-avatar", url: "https://www.promptbul.org/prompts/naruto-avatar-promptu", prompt: `{  "subject": "Transform the subject from the uploaded image into a Naruto TV series (Japanese anime) style shinobi character.",  "style_and_aesthetic": {  "primary_style": "Match the official Naruto anime art style: bold cel-shading, saturated warm colors, clean anime outlines, and TV-series level anime finish.",  "avoid": [  "Manga sketching",  "Black-and-white shading",  "Loose pencil sketch aesthetics"  ]  },  "subject_details_to_retain": {  "identity_preservation": "Keep the subject's clothing, hairstyle, accessories, skin tone, expression, and pose clearly recognizable.",  "clothing_stylization": "Stylize the clothing with Naruto flair: add subtle shinobi elements like reinforced fabric folds, sash-like belts, layered textile textures, or ninja-themed accessories.",  "headband_details": "Optionally add a protective ninja headband (forehead protector with a metal plate and engraved village symbol), positioned naturally on the forehead, around the neck, or as an accessory, depending on the subject's hairstyle."  },  "character_integration": {  "body_proportions": "Use proportions consistent with the Naruto anime: lean frame, agile shinobi body type.",  "facial_features": "Anime-style face with expressive Naruto-style eyes with strong highlights, stylized eyebrows, and simplified anime nose and mouth.",  "energy_effects": "Optionally add subtle Naruto-style energy effects where appropriate, such as faint aura-like shading, light motion lines, or wind-swept anime streaks around the character."  },  "ninja_world_elements": {  "optional_props": [  "Kunai holster",  "Small ninja pouch",  "Naruto-style open-toe sandals"  ],  "rendering_style": "All props must be rendered in the official Naruto TV series visual style."  },  "output_requirements": {  "framing": "Full-body character, head-to-toe fully visible.",  "background": "Transparent background only; no scenery, no gradients, and no patterns.",  "render_quality": "High-quality cel-shaded anime illustration consistent with Naruto TV series production quality."  },  "negative_prompt": {  "forbidden_styles": [  "Manga-style sketching",  "Cross-hatching",  "Grayscale shading",  "Other anime aesthetics One Piece"  ],  "clothing_constraints": "Do not replace or remove the subject's original clothing and accessories; only stylize them with Naruto shinobi characteristics while keeping their original structure recognizable."  } }` },
         { id: "one-piece", url: "https://www.promptbul.org/prompts/one-piece", prompt: `{  "task": "Transform the subject from the uploaded photo into a One Piece anime show style character.",  "style_and_aesthetic": {  "strict": true,  "base_style": "Official One Piece anime (not manga).",  "color_and_render": [  "Vibrant, saturated colors",  "Bold cel-shading",  "Crisp outlines",  "Clean, animated TV-show look",  "Anime-quality coloring and shading (no sketchy manga line-art)"  ],  "proportions": [  "Proportions consistent with One Piece anime",  "Lean frame",  "Long limbs",  "Dynamic pose",  "Expressive face"  ],  "facial_features": [  "Distinctively One Piece style face",  "Big round or oval expressive anime eyes",  "Stylized anime eyebrows",  "Anime-style nose",  "Dramatic anime mouth shapes"  ]  },  "subject_details_to_retain": {  "identity_preservation": [  "Keep subject clearly recognizable as themselves",  "Face, expression, and overall silhouette must remain identifiable"  ],  "visual_elements": [  "Preserve the subject's clothing",  "Preserve hairstyle and hair color",  "Preserve accessories",  "Preserve pose",  "Preserve skin tone",  "Preserve facial expression"  ],  "stylization_notes": [  "Slightly stylize the clothing with One Piece anime flair",  "Add extra folds, shading, and detail exaggeration in the outfit",  "Keep clothing faithful to the original outfit while fitting the One Piece world",  "Character should seamlessly fit into the One Piece anime universe"  ]  },  "output_requirements": {  "composition": [  "Full-body character in One Piece anime style",  "Single character based on the uploaded subject"  ],  "background": [  "Transparent background",  "No scenery",  "No gradients",  "No patterns"  ],  "quality": [  "High-quality anime cel-shaded illustration",  "Clean, polished finish suitable for key art or character sheet"  ]  },  "negative_prompt": {  "strict_exclusion": true,  "forbidden_styles": [  "No manga-style black and white sketching",  "No hatching or heavy line-art shading",  "No Naruto style",  "No Dragon Ball style",  "No Bleach style",  "No Demon Slayer style",  "No styles from any other anime series"  ],  "forbidden_render_types": [  "No 3D realism",  "No semi-realism",  "No western cartoon or comic style",  "No photorealistic rendering"  ]  } }` },
         { id: "rick-and-morty", url: "https://www.promptbul.org/prompts/rick-and-morty-poster", prompt: `{  "task": "Create a dynamic 2D illustration in the official 'Rick and Morty' TV series art style using the uploaded image as the subject reference.",  "core_prompt": {  "scene": "Depict the person/people from the uploaded image being launched through a bright green interdimensional portal onto a bizarre alien planet. The action moment is frozen mid-exit: the characters’ upper bodies and torsos are fully outside the portal, while their LEGS AND FEET are still partially inside the swirling portal, as if they are just stepping or being pulled out. Strong motion, depth, and chaotic energy are emphasized.",  "style_rules": {  "style_match": "Strictly match the official 'Rick and Morty' 2D animation style not realistic.",  "linework": "Thick, slightly wobbly black outlines.",  "coloring": "Flat colors with simple cel-style shading.",  "faces": "Use characteristic Rick and Morty facial design, including scribbly pupil style and simplified features."  },  "subject_transformation": {  "identity": "Translate the uploaded subject(s) into the Rick and Morty style while keeping them recognizable by preserving their key facial structure, hairstyle, hair color, outfit, and overall silhouette.",  "pose_and_action_by_count": {  "if_1_person": "The single character is running out of the portal alone in a dynamic pose.",  "if_2_people": "Based on the visual identity of the subjects in the uploaded image: If the two characters are of opposite genders one female presenting, depict them holding hands while running out of the portal. If they appear to be of the same gender, depict them running out side-by-side but explicitly NOT holding hands.",  "if_3_or_more_people": "All characters are exiting the portal together, but they are NOT holding hands."  },  "equipment": "Give EACH character a random Rick and Morty universe sci-fi weapon e.g.. The weapon choice should vary randomly each time."  },  "environment": {  "portal": "Place the iconic swirling Rick and Morty portal behind the characters, centered in the composition: bright neon green, rotating, with bubbly goo-like highlights.",  "alien_planet_background": "Create a unique, strange alien planet landscape every time odd-colored plants.",  "random_background_alien": "Add one randomly generated alien somewhere in the background watching the portal exit with a mixed expression of shock and fear. The alien’s appearance must be fully random random skin color."  }  },  "negative_prompt": [  "photorealism",  "3D rendering",  "pixar/disney style",  "anime style",  "manga shading",  "clean vector lines",  "soft airbrush gradients",  "realistic skin texture",  "hyper-detailed painting",  "wrong number of people",  "missing portal",  "portal not green",  "no alien planet background",  "no background alien character"  ],  "output_requirements": {  "format": "2D illustration",  "composition": "Portal centered behind the subjects, subjects exiting forward into the scene, alien planet visible in the background.",  "quality": "High-resolution, crisp TV-animation look."  },  "randomization_rules": {  "weapon_randomization": "Randomize each character’s sci-fi weapon selection each generation.",  "planet_randomization": "Generate a different alien planet environment each generation.",  "background_alien_randomization": "Randomize the background alien’s position, anatomy and colors each generation."  },  "optional_top_text": {  "enabled_if_text_provided": true,  "text": "buraya istediğini yaz veya boş bırak",  "placement": "Top center.",  "typography": "Use a 'Rick and Morty'-style green, gooey, outlined logo-like font. If this field is empty, do not add any text."  } }` },
-        { id: "powerpuff", url: "https://www.promptbul.org/prompts/powerpuff", prompt: `Convert the individual in the uploaded image into an illustration inspired by the Powerpuff Girls universe.  Visual Style: 	•	Authentic Powerpuff Girls cartoon look: large circular eyes, rounded head, very small limbs, and ultra-simple geometry 	•	Strong, clean outlines with bright, flat color fills 	•	Extremely simplified facial features, with emotion conveyed mainly through eyes and mouth 	•	Fully 2D cartoon rendering with zero shading, gradients, or texture  Character Details: 	•	Adapt the person’s hairstyle, hair color, and skin tone into a simplified cartoon interpretation 	•	Replicate the outfit and all accessories exactly (such as glasses, hats, earrings), resized to Powerpuff-style proportions 	•	Preserve the original pose and facial expression, translated into the exaggerated cartoon language 	•	Keep distinctive elements (logos, jewelry, layered clothing), simplified to match the animation style  Pose & Composition: 	•	Match the body pose from the original photo 	•	Full-body character, positioned centrally 	•	Optionally allow the feet to hover slightly, mimicking classic Powerpuff flight poses  Background: 	•	Flat or pastel-colored background similar to the original TV series 	•	Optional subtle motion lines or soft glow to enhance the sense of action  Lighting: 	•	No realistic lighting 	•	Use flat, uniform cartoon coloring consistent with the Powerpuff Girls show style` },
+        { id: "powerpuff", url: "https://www.promptbul.org/prompts/powerpuff", prompt: `Convert the individual in the uploaded image into an illustration inspired by the Powerpuff Girls universe.  Visual Style:     •    Authentic Powerpuff Girls cartoon look: large circular eyes, rounded head, very small limbs, and ultra-simple geometry     •    Strong, clean outlines with bright, flat color fills     •    Extremely simplified facial features, with emotion conveyed mainly through eyes and mouth     •    Fully 2D cartoon rendering with zero shading, gradients, or texture  Character Details:     •    Adapt the person’s hairstyle, hair color, and skin tone into a simplified cartoon interpretation     •    Replicate the outfit and all accessories exactly (such as glasses, hats, earrings), resized to Powerpuff-style proportions     •    Preserve the original pose and facial expression, translated into the exaggerated cartoon language     •    Keep distinctive elements (logos, jewelry, layered clothing), simplified to match the animation style  Pose & Composition:     •    Match the body pose from the original photo     •    Full-body character, positioned centrally     •    Optionally allow the feet to hover slightly, mimicking classic Powerpuff flight poses  Background:     •    Flat or pastel-colored background similar to the original TV series     •    Optional subtle motion lines or soft glow to enhance the sense of action  Lighting:     •    No realistic lighting     •    Use flat, uniform cartoon coloring consistent with the Powerpuff Girls show style` },
+
 
         // --- Oyunlar ---
         { id: "counter-strike", url: "https://www.promptbul.org/prompts/counter-strike", prompt: `{   "ABSOLUTE_OVERRIDE_RULE": {     "priority": "CRITICAL",     "instruction": "The final image must perfectly align spatially with the reference image. The pose of the subject and the structural layout of the background (walls, doors, windows locations) MUST NOT change relative to the frame.",     "failure_condition": "If background elements are moved, reshaped, or redesigned radically, the result is INVALID."   },   "SOURCE_IMAGE_POLICY": {     "usage": "Use the reference image as an exact structural blueprint.",     "transformation_method": "RE-SKINNING GEOMETRY. Do not create new buildings. Instead, apply Counter-Strike textures and assets over the existing shapes and forms in the reference image."   },   "CHARACTER_RECONSTRUCTION": {     "identity_and_pose": "Preserve the facial features and exact pose of the subject(s) from the reference image.",     "attire": "Replace clothing with realistic Counter-Strike attire. Randomly assign either CT (GIGN, SAS, FBI) or T (Elite Crew, Phoenix, Balkan) faction outfits."   },   "EQUIPMENT_AND_WEAPONS": {     "instruction": "Place one random iconic CS weapon in the subject's hands, naturally fitting the original hand pose.", "weapon_pool": "[AWP | Dragon Lore, AWP | Asiimov, AWP | Gungnir, AWP | Medusa, AK-47 | Case Hardened, AK-47 | Fire Serpent, AK-47 | Vulcan, AK-47 | Wild Lotus, M4A4 | Howl, M4A4 | Poseidon, M4A1-S | Printstream, M4A1-S | Blue Phosphor, Desert Eagle | Blaze, USP-S | Kill Confirmed, Glock-18 | Fade, Butterfly Knife | Fade, Karambit | Doppler, M9 Bayonet | Lore, Talon Knife | Marble Fade, Sport Gloves | Vice, Sport Gloves | Pandora's Box]"   },   "ENVIRONMENT_ADAPTATION": {     "logic": "Apply CS map textures to the existing background structures based on lighting and color, WITHOUT changing their shape.",     "mapping_rules": [       {         "if_atmosphere": "Sunny, Sandy, Yellow tones, Desert vibe",         "apply_texture_set": "Dust 2 or Mirage assets (Sandstone bricks, middle-eastern arches, wooden crates)"       },       {         "if_atmosphere": "Sunny, Warm yellow walls, Tiled roofs, European town vibe",         "apply_texture_set": "Inferno assets (Stucco walls, terracotta roof tiles, narrow alley details)"       },       {         "if_atmosphere": "Overcast, Concrete, Industrial, Grey tones",         "apply_texture_set": "Overpass, Nuke, or Train assets (Concrete walls, rusted metal, pipes, chain-link fences)"       },       {         "if_atmosphere": "Indoor, Carpeted, Commercial space",         "apply_texture_set": "Office or Agency assets"       },       {         "if_atmosphere": "Jungle, Stone ruins, Mossy",         "apply_texture_set": "Ancient or Aztec assets"       }     ]   },   "STYLE_AND_ENGINE": {     "target_look": "Counter-Strike 2 (Source 2 Engine) gameplay screenshot.",     "rendering": "Realistic lighting, sharp tactical textures, slight grit, competitive game UI hidden."   },   "NEGATIVE_PROMPT": [     "Changing background structure",     "Moving walls",     "Cartoon look",     "Fortnite style",     "Blurry faces",     "Plastic textures",     "Incorrect pose",     "Sci-fi elements",     “UI elements”,     "Full face mask",     "Balaclava"    ] }` },
@@ -62,8 +64,8 @@
         { id: "pastel-boya", url: "https://www.promptbul.org/prompts/pastel-boya", prompt: `Create an image directly. Do NOT output any analysis.  Apply the following rules based on the uploaded photo:  • If one photo contains two people → generate two full-body pastel figures side by side • Do NOT add or duplicate characters  REFERENCE USAGE: • Use the uploaded image ONLY for pose, silhouette, clothing layers (simplified)  STYLE: • Naive childlike oil pastel drawing • Rough, grainy textured paper • Imperfect uneven strokes, no clean outlines • Flat bold color blocks, limited details • Soft scribble shadow under feet • Plain beige/off-white background • Cute simplified faces (dots/line) and always include a small clear nose shape centered between eyes and mouth` },
 
         // --- Fotoğrafçılık ---
-        { id: "golden-hour", url: "https://www.promptbul.org/prompts/golden-hour", prompt: `Görev: Yüklenen görseli analiz et ve mevcut kompozisyonu koruyarak gerçekçi gün batımı ışığı ekle.  Zorunlu Adımlar: 	1.	Sahne Analizi 	•	Kameranın yönünü, çekim açısını ve ortamı analiz et. 	•	Güneşin mantıksal konumunu alçak açı belirle. 	•	Yüzün 3D hacmini burun doğru algıla. 	2.	Işık Uygulaması 	•	Alçak açıdan gelen sıcak gün batımı ışığı uygula turuncu-sarı geçişler. 	•	Işık, yüzün yalnızca güneşe bakan kısmını aydınlatsın; diğer alanlar doğal gölgede kalsın. 	•	Sert değil, yumuşak ama yönlü ışık kullan. 	3.	Gölge Detayı 	•	Ortama bağlı olarak yüzde: 	•	Doğal düz gölge veya 	•	Cam/ızgara/araç camı kenarı gibi nesnelerden gelen şekilli (çizgili/ızgaramsı) gölgeler oluştur. 	•	Gölge desenleri rastgele değil, fiziksel olarak mantıklı olsun. 	4.	Koruma Kuralları 	•	Yüz kimliği, ifade, poz, kadraj KESİNLİKLE değişmeyecek. 	•	Arka plan, kıyafet, saç formu korunacak. 	•	Yeni obje ekleme, sahne değiştirme. 	5.	Gerçekçilik 	•	Cilt dokusu doğal kalsın, plastik görünüm olmasın. 	•	Hafif kontrast artışı olabilir, abartılı sinematik efekt yok. 	•	Işık ve gölge, fotoğrafın gerçekten gün batımında çekilmiş hissini versin.  Negatif Direktifler: Yapay ışık, stüdyo hissi, HDR patlaması, aşırı turunculuk, yüzü tamamen aydınlatma, sert yapay gölgeler, kimlik bozulması yok.` },
-        { id: "golden-hour2", url: "https://www.promptbul.org/prompts/golden-hour2", prompt: `Task: Analyze the uploaded image and enhance it with a hyper-realistic sunset atmosphere while preserving the original composition, subject identity, pose, and framing exactly.  ⸻  MANDATORY ANALYSIS PHASE (DO NOT SKIP) 	1.	Scene & Camera Analysis 	•	Analyze camera orientation, focal length impression, eye level, and perspective. 	•	Identify whether the scene is outdoor, semi-outdoor, or visually open to the sky. 	•	Determine the logical horizon line and spatial depth of the background. 	•	Infer where the sun could realistically be setting based on scene geometry behind subject. 	2.	Sun Position Calculation 	•	Place the sun at a low, physically plausible sunset angle. 	•	If sky is visible: position the sun near the horizon line. 	•	If the sun itself cannot be visible, its presence must still be strongly implied through lighting direction and sky coloration. 	•	The sun must NEVER appear in an illogical position no overhead.  ⸻  SUNSET SKY TRANSFORMATION 	•	If the image allows sky visibility: 	•	Replace or enhance the sky with natural sunset gradients: 	•	Warm oranges, soft golds, muted reds, subtle pinks and purples. 	•	Smooth transitions, no banding, no HDR exaggeration. 	•	The sun disk (if visible) must be partially diffused by atmosphere, never sharp or artificial. 	•	Sky brightness must remain lower than daylight but not overly dark.  ⸻  LIGHT INTERACTION & ILLUMINATION 	•	Apply warm, low-angle sunset light consistent with the calculated sun position. 	•	Light should: 	•	Gently wrap around edges (subtle rim light if backlit). 	•	Create natural highlights on surfaces facing the sun. 	•	Leave opposing areas in soft, realistic shadow. 	•	Light must feel directional and environmental, not studio-based. 	•	Add mild, realistic light bloom or glow only if physically justified.  ⸻  REALISM CONSTRAINTS 	•	Preserve: 	•	Exact pose 	•	Exact framing 	•	Exact facial identity and expression 	•	Original clothing, hair, background structure 	•	Do NOT add or remove objects. 	•	Do NOT change perspective or crop. 	•	Skin texture must remain natural no AI smoothing. 	•	Contrast may increase slightly but remain realistic. 	•	The effect must be clearly visible but never exaggerated or cinematic-heavy.  ⸻  ABSOLUTE NEGATIVE RULES 	•	No artificial or studio lighting 	•	No HDR overprocessing 	•	No extreme orange/yellow saturation 	•	No full-face illumination 	•	No harsh or fake shadows 	•	No lens flare abuse 	•	No identity distortion 	•	No pose or composition change  ⸻  FINAL GOAL  The final image must look as if it was authentically photographed during real sunset conditions, with believable sky, light direction, and atmosphere — subtle yet unmistakable, realistic yet visually rich.` },
+        { id: "golden-hour", url: "https://www.promptbul.org/prompts/golden-hour", prompt: `Görev: Yüklenen görseli analiz et ve mevcut kompozisyonu koruyarak gerçekçi gün batımı ışığı ekle.  Zorunlu Adımlar:     1.    Sahne Analizi     •    Kameranın yönünü, çekim açısını ve ortamı analiz et.     •    Güneşin mantıksal konumunu alçak açı belirle.     •    Yüzün 3D hacmini burun doğru algıla.     2.    Işık Uygulaması     •    Alçak açıdan gelen sıcak gün batımı ışığı uygula turuncu-sarı geçişler.     •    Işık, yüzün yalnızca güneşe bakan kısmını aydınlatsın; diğer alanlar doğal gölgede kalsın.     •    Sert değil, yumuşak ama yönlü ışık kullan.     3.    Gölge Detayı     •    Ortama bağlı olarak yüzde:     •    Doğal düz gölge veya     •    Cam/ızgara/araç camı kenarı gibi nesnelerden gelen şekilli (çizgili/ızgaramsı) gölgeler oluştur.     •    Gölge desenleri rastgele değil, fiziksel olarak mantıklı olsun.     4.    Koruma Kuralları     •    Yüz kimliği, ifade, poz, kadraj KESİNLİKLE değişmeyecek.     •    Arka plan, kıyafet, saç formu korunacak.     •    Yeni obje ekleme, sahne değiştirme.     5.    Gerçekçilik     •    Cilt dokusu doğal kalsın, plastik görünüm olmasın.     •    Hafif kontrast artışı olabilir, abartılı sinematik efekt yok.     •    Işık ve gölge, fotoğrafın gerçekten gün batımında çekilmiş hissini versin.  Negatif Direktifler: Yapay ışık, stüdyo hissi, HDR patlaması, aşırı turunculuk, yüzü tamamen aydınlatma, sert yapay gölgeler, kimlik bozulması yok.` },
+        { id: "golden-hour2", url: "https://www.promptbul.org/prompts/golden-hour2", prompt: `Task: Analyze the uploaded image and enhance it with a hyper-realistic sunset atmosphere while preserving the original composition, subject identity, pose, and framing exactly.  ⸻  MANDATORY ANALYSIS PHASE (DO NOT SKIP)     1.    Scene & Camera Analysis     •    Analyze camera orientation, focal length impression, eye level, and perspective.     •    Identify whether the scene is outdoor, semi-outdoor, or visually open to the sky.     •    Determine the logical horizon line and spatial depth of the background.     •    Infer where the sun could realistically be setting based on scene geometry behind subject.     2.    Sun Position Calculation     •    Place the sun at a low, physically plausible sunset angle.     •    If sky is visible: position the sun near the horizon line.     •    If the sun itself cannot be visible, its presence must still be strongly implied through lighting direction and sky coloration.     •    The sun must NEVER appear in an illogical position no overhead.  ⸻  SUNSET SKY TRANSFORMATION     •    If the image allows sky visibility:     •    Replace or enhance the sky with natural sunset gradients:     •    Warm oranges, soft golds, muted reds, subtle pinks and purples.     •    Smooth transitions, no banding, no HDR exaggeration.     •    The sun disk (if visible) must be partially diffused by atmosphere, never sharp or artificial.     •    Sky brightness must remain lower than daylight but not overly dark.  ⸻  LIGHT INTERACTION & ILLUMINATION     •    Apply warm, low-angle sunset light consistent with the calculated sun position.     •    Light should:     •    Gently wrap around edges (subtle rim light if backlit).     •    Create natural highlights on surfaces facing the sun.     •    Leave opposing areas in soft, realistic shadow.     •    Light must feel directional and environmental, not studio-based.     •    Add mild, realistic light bloom or glow only if physically justified.  ⸻  REALISM CONSTRAINTS     •    Preserve:     •    Exact pose     •    Exact framing     •    Exact facial identity and expression     •    Original clothing, hair, background structure     •    Do NOT add or remove objects.     •    Do NOT change perspective or crop.     •    Skin texture must remain natural no AI smoothing.     •    Contrast may increase slightly but remain realistic.     •    The effect must be clearly visible but never exaggerated or cinematic-heavy.  ⸻  ABSOLUTE NEGATIVE RULES     •    No artificial or studio lighting     •    No HDR overprocessing     •    No extreme orange/yellow saturation     •    No full-face illumination     •    No harsh or fake shadows     •    No lens flare abuse     •    No identity distortion     •    No pose or composition change  ⸻  FINAL GOAL  The final image must look as if it was authentically photographed during real sunset conditions, with believable sky, light direction, and atmosphere — subtle yet unmistakable, realistic yet visually rich.` },
         { id: "low-light", url: "https://www.promptbul.org/prompts/low-light", prompt: `Gece çekimindeki karanlığı ve düşük ışık etkilerini gider; görünürlüğü belirgin şekilde artır. Ancak sahnenin gece atmosferini ve doğal ışık kaynaklarını aynen koru — gün ışığına dönüştürme. Yüzü ve ana konuyu seçici biçimde aydınlat; gözler, kaşlar, kirpikler, dudaklar ve saçlarda yüksek netlik, keskin kenarlar ve güçlü detay geri kazanımı sağla.  Bulanıklık, noise, gren ve düşük çözünürlük kaynaklı kayıpları tamamen düzelt. Cilt dokusunu doğal tut; asla plastik veya fazla pürüzsüz görünmesin. Gölge detaylarını geri getir; derinlik hissini güçlendir. Parlaklık–kontrast–dinamik aralık iyileştirmelerini dengeli yap; fotoğrafı fazla açma veya patlatma. Renk doğruluğunu koru; sıcaklık veya ton kaymasına izin verme.  Kompozisyon, poz, yüz hatları, arka plan ve kıyafetler hiç değişmesin. Yeni ışık efekti, parıltı veya stil ekleme. Eğrilme, artefakt, halo, keskinlik fringing’i oluşmasın. Sonuç: Yüksek çözünürlüklü, net, berrak, doğal görünümlü, gece ruhunu koruyan ama karanlık olmayan bir portre.` },
         { id: "snow-photoshoot", url: "https://www.promptbul.org/prompts/snow-photoshoot", prompt: `TRIPLE STACKED PORTRAIT (3 IMAGES – SAME PERSON, SAME FACE)  Base Rule (CRITICAL) Use the uploaded reference image as the only identity reference. All three images must depict the exact same person with identical facial identity. No face variation between frames. The person must be instantly recognizable as the same individual in all three images.  COMPOSITION RULE (VERY IMPORTANT)  Generate ONE single vertical image divided into THREE horizontal panels stacked vertically (top / middle / bottom), similar to a cinematic triptych.      Equal panel heights    Clean horizontal separation (natural crop, no borders, no frames)    Same person in all three panels    Same face, same identity, same realism  Aspect ratio suggestion: 2:3 or 9:16, vertically stacked.  PANEL BREAKDOWN (DO NOT MERGE PANELS)  🔹 PANEL 1 — TOP (CLOSE-UP PORTRAIT)      Tight close-up of the face    Eyes perfectly sharp, centered    Snowflakes resting lightly on hair, eyelashes, and skin    Calm, neutral expression    Minimal background blur, winter tones    Emphasis on facial identity and skin texture  📌 Purpose: Identity lock  🔹 PANEL 2 — MIDDLE (MID-SHOT / SIDE PROFILE)      Same person, mid-shot or slight side profile    Holding a transparent umbrella OR looking sideways into snowfall    Snowy forest or winter park background    Scarf and coat clearly visible    Cinematic depth of field  📌 Purpose: Context + environment  🔹 PANEL 3 — BOTTOM (FRONT-FACING / EDITORIAL)      Front-facing portrait or slightly wider framing    Person looking directly into camera    Strong but soft editorial winter mood    Snow falling in foreground and background    Balanced, symmetrical composition  📌 Purpose: Emotional anchor  FACE & ID PRESERVATION (NON-NEGOTIABLE)      Identical facial structure across all panels    Same:      eye shape and spacing    nose structure    lips    jawline    cheekbones    eyebrow shape    Preserve natural asymmetry and skin texture    No beautification, no face morphing    No age change  LIGHTING & COLOR      Natural winter daylight or blue-hour light    Soft diffused lighting    Cold but realistic color temperature    Consistent skin tone across all three panels  CAMERA & QUALITY      DSLR realism    Lens: 50mm / 85mm    Shallow depth of field    Sharp eyes, soft background    Ultra-photorealistic    Editorial fashion photography quality  ❌ NEGATIVE PROMPT (VERY IMPORTANT)      no different faces between panels    no face swap    no identity drift    no symmetry correction    no doll skin    no CGI    no illustration    no anime    no painterly style    no fantasy elements  STYLE KEYWORDS (END)  photorealistic, triple portrait, cinematic winter editorial, identity-locked face, snowfall, fashion photography, shallow depth of field, natural skin texture` },
         { id: "snow-storm", url: "https://www.promptbul.org/prompts/snow-storm", prompt: `Create an image. Do NOT change identity, face, pose, or clothing of the subject.  Apply these transformation rules to the uploaded image:  SCENE & ENVIRONMENT — MUST FOLLOW • Convert entire scene into a heavy snowstorm winter environment • Ground must be fully covered in thick, bright white snow • Add visible fresh snow buildup on surfaces (ground, objects, trees, buildings) • Falling snowflakes of different sizes • Dense snowfall with motion streaks in the background • Cold, wintery atmosphere  SUBJECT RULES — STRICT • Keep the person’s face, expression, gaze, pose, and hairstyle exactly the same • Preserve body proportions and clothing colors • Light snow on hair, shoulders, and clothing edges • Subject remains sharp and clearly visible  LIGHTING & COLOR • Cooler tones overall (slightly bluish winter color balance) • Increased contrast between subject and snowy background • Maintain original lighting direction and shadows  NEGATIVE PROMPT • Do NOT alter identity or facial structure • Do NOT add accessories or props • No warping, no style change, no blur on the main subject • No cartoon or painting effect • No removal of background elements (only winter conversion)` },
@@ -71,7 +73,9 @@
         { id: "flower-flood", url: "https://www.promptbul.org/prompts/flower-flood", prompt: `Introduce an extremely dense, photorealistic sea of flowers across the uploaded image, while keeping the original subject, pose, clothing, background, and lighting completely unchanged.  First, analyze the subject’s outfit and accessories and identify the dominant and secondary colors present in the clothing (dress, jacket, shoes, jewelry, bags, etc.). Use these detected colors as the primary color palette for the flowers.  Fill the entire lower section of the scene with a thick, overflowing layer of real flowers, creating the feeling that the subject is standing inside a high-end indoor floral installation. The flowers should be extremely abundant, tightly packed, and layered with strong depth — covering the floor and rising upward around the subject.  Include a wide range of photorealistic flower types such as roses, peonies, ranunculus, tulips, daisies, hydrangeas, wildflowers, and lush greenery. The majority of flowers must match the dominant clothing and accessory colors, with subtle variations in tone and shade. Minor accent flowers in neutral or complementary tones (ivory, soft green, muted pastels) are allowed only for depth and realism — not to override the main color scheme.  The overall floral arrangement should feel rich, immersive, and cohesive, with flowers placed in the foreground, midground, and background, wrapping naturally around the subject.  Ensure all flowers look real and fresh, with detailed petal textures, soft natural lighting, and shadows that precisely match the original image. Perspective, scale, and depth must be physically accurate, with seamless integration into the environment — no flat, artificial, or pasted appearance.  The flowers should rise densely around the subject’s legs and fill the scene, but must never cover the face or distort the body or clothing silhouette.  Do not add any props, text, or alter any existing elements — the only modification allowed is the addition of flowers.  Objective: Transform the scene into a luxurious, ultra-dense, photorealistic floral installation where the flower colors are driven by the subject’s outfit and accessories, while fully preserving the original subject and environment.` },
         { id: "flowers-on-floor", url: "https://www.promptbul.org/prompts/flowers-on-the-floor", prompt: `Yüklenen görseli ayrıntılı biçimde incele: öznenin kıyafeti, renk paleti, ışığın hissi ve sahnenin genel atmosferi dahil. Bu analize dayanarak, sahneyle en iyi uyumu sağlayacak tek bir çiçek türünü ve renk kombinasyonunu otomatik olarak belirle. Seçilen çiçeklerin tonu, sahnenin duygusal havasıyla örtüşsün örneğin yumuşak ve hüzünlü ve renkleri öznenin kıyafetleri ile çevresiyle uyumlu olsun ya da bunları zarifçe tamamlasın.  Belirlenen çiçekleri, sinematik ya da editoryal fotoğraf kompozisyonlarını andıracak şekilde, öznenin etrafındaki zemine doğal biçimde yay. Yerleşim gerçekçi kalsın: aralıklar düzensiz olsun, bazı saplar kırık görünsün, bazı yapraklarda küçük kusurlar bulunsun ve tam açmış çiçeklerle yarı açmış olanlar birlikte yer alsın. Zemin dokusu, perspektif, ışığın yönü ve genel atmosfer, yüklenen görüntüyle birebir korunmalı.  Özneye, pozuna, kıyafetine veya arka plana hiçbir müdahalede bulunma. Yalnızca çiçekleri ekle; bunu da sahnenin duygusuyla uyumlu, ayakları yere basan ve fotogerçekçi bir biçimde yap.  Kesin kurallar: – Dağıtılan çiçekler dışında hiçbir obje ekleme – Parlama, fantezi efektleri veya gerçek dışı renkler kullanma – Çiçekler seçilen tek türle tutarlı olsun – Gölge ve ışıklandırma orijinal fotoğrafla birebir uyumlu kalsın` },
 
+
         // --- Diğer ---
+
         { id: "emotional-damage", url: "https://www.promptbul.org/prompts/emotional-damage", prompt: `Use the uploaded image as the absolute reference. ABSOLUTE LOCK — FOREGROUND: • Preserve the main subject’s face, pose, framing, camera angle, and expression EXACTLY. • No change to gaze direction, head angle, or crop. • Foreground emotion remains neutral / original. SPATIAL CONSTRAINT (NON-NEGOTIABLE): • Alter-ego A: MUST appear ONLY on the LEFT side of the main subject. • Alter-ego B: MUST appear ONLY on the RIGHT side of the main subject. • Never center background figures or swap sides. RANDOMIZED BACKGROUND EMOTIONS (POOL): For each side (A and B), randomly select one unique state from the list below to create a chaotic inner conflict: 1. Rage/Screaming: Mouth wide open, explosive anger, violent release. 2. Intense Grief: Deep crying, face contorted, tears visible. 3. Hysterical (Laughing while Crying): Unstable expression, wide eyes, mix of joy and despair. 4. Self-Destruction: Grabbing head, pulling hair aggressively, desperate grip. 5. Pure Shock: Jaw dropped, wide eyes, frozen in disbelief/terror. 6. Manic/Madness: Unsettling wide grin, twitching eyes, "losing it" expression. 7. Nausea/Disgust: Grimacing, hand near mouth, eyes narrowed in revulsion. 8. Skyward Scream: Head tilted back, looking up at the sky, throat strained in a shout. VISUAL TREATMENT (BACKGROUND ONLY): • Semi-transparent, ghost-like appearance. • Side A (Left): 15% opacity, slightly sharper, aggressive motion blur. • Side B (Right): 15% opacity, softer, more faded/ethereal. • Identity remains the same, but not pixel-identical (expressive distortion). • No changes to clothing or hairstyle. STYLE KEYWORDS: double exposure, emotional trinity, inner conflict, psychological portrait, cinematic composite, high-tension drama, 8k resolution, photorealistic. STRICTLY FORBIDDEN: • Swapping left/right positions. • Placing both emotions on the same side. • Altering the foreground person’s neutral expression` },
         { id: "wojak-deneme", url: "https://www.promptbul.org/prompts/wojak-deneme", prompt: `{  "task_definition": "Analyze the uploaded reference image ONLY to infer emotional state, general posture, and perceived gender. Do NOT preserve the subject’s facial identity. Then generate a Wojak-universe character whose face strictly matches established Wojak archetypes.",   "analysis_phase": {  "instruction": "Visually analyze the reference image for emotion, mood, posture, and gender presentation only.",  "explicit_exclusion": "Ignore the subject’s real facial features, facial proportions, eye shape, nose, mouth, and identity.",  "emotion_detection": [  "confidence",  "sadness",  "melancholy",  "anger",  "emptiness",  "irony",  "naivety",  "anxiety",  "detachment",  "mania"  ]  },   "face_generation_rules": {  "primary_rule": "The final face MUST look like a canonical Wojak or Wojak-variant face, not a stylized version of the real person.",  "allowed_face_sources": [  "classic Wojak",  "Doomer",  "Smug Wojak",  "Coomer",  "NPC",  "Big Brain Wojak",  "Crying Wojak",  "Schizo Wojak",  "Trad Wojak"  ],  "face_similarity_limit": "At most 10–20% resemblance allowed. Emotional resemblance is allowed; physical resemblance is discouraged."  },   "style_and_aesthetic": {  "primary_style": "Extended Wojak meme universe. Flat 2D drawing, crude hand-drawn quality, intentionally uncomfortable.",  "linework": "Uneven, shaky black outlines. Amateur, imperfect strokes.",  "coloring": "Flat colors only. Pale or off-white skin tones preferred. Minimal accent colors.",  "shading": "Minimal or absent. Scribbled single-tone shadows only.",  "strictly_avoid": [  "anime",  "clean illustration",  "3D",  "realistic faces",  "beautified characters"  ]  },   "emotion_to_abstraction_logic": {  "instruction": "Based on detected emotion, RANDOMLY select Wojak-compatible exaggerations.",  "allowed_abstractions": [  "oversized or hollow head",  "big brain",  "drooping or empty eyes",  "exaggerated wrinkles",  "tears, drool, blush",  "asymmetrical smug grin",  "awkward skull proportions"  ],  "randomization_rule": "Exaggerations must vary between generations but always remain emotionally coherent."  },   "subject_translation_rules": {  "identity_handling": "Discard facial identity completely. Preserve only emotional tone and gender.",  "pose_translation": "Adapt posture into Wojak-style awkward or slouched pose.",  "gender_expression": "Gender should influence hairstyle, clothing silhouette, and Wojak variant choice only.",  "clothing": "Simplified Wojak-style clothing hoodie with flat colors."  },   "character_integration": {  "body_proportions": "Classic Wojak proportions: oversized or distorted head, thin neck, minimal torso.",  "pose": "Static, uncomfortable, emotionally expressive stance."  },   "output_requirements": {  "framing": "Bust or half-body. Face dominates the image.",  "background": "Plain white or very light gray only.",  "final_quality": "Low-fidelity meme drawing. Should feel ironic, raw, or slightly disturbing."  },   "negative_prompt": {  "forbidden": [  "portrait likeness",  "face tracing",  "realistic anatomy",  "cute or clean cartoon style",  "smooth shading",  "symmetrical beauty"  ],  "enforcement": "If the face starts to resemble the real subject, reduce resemblance and reapply canonical Wojak face structures."  } }` },
         { id: "wojak-sticker", url: "https://www.promptbul.org/prompts/wojak-sticker", prompt: `{  "task_definition": "Analyze the uploaded reference image ONLY to infer emotional state, general posture, and perceived gender. Do NOT preserve the subject’s facial identity. Then generate a Wojak-universe character whose face strictly matches established Wojak archetypes.",  "analysis_phase": {  "instruction": "Visually analyze the reference image for emotion, mood, posture, and gender presentation only.",  "explicit_exclusion": "Ignore the subject’s real facial features, facial proportions, eye shape, nose, mouth, and identity.",  "emotion_detection": [  "confidence",  "sadness",  "melancholy",  "anger",  "emptiness",  "irony",  "naivety",  "anxiety",  "detachment",  "mania"  ]  },  "face_generation_rules": {  "primary_rule": "The final face MUST look like a canonical Wojak or Wojak-variant face, not a stylized version of the real person.",  "allowed_face_sources": [  "classic Wojak",  "Doomer",  "Smug Wojak",  "Coomer",  "NPC",  "Big Brain Wojak",  "Crying Wojak",  "Schizo Wojak",  "Trad Wojak"  ],  "face_similarity_limit": "At most 10–20% resemblance allowed. Emotional resemblance is allowed; physical resemblance is discouraged."  },  "style_and_aesthetic": {  "primary_style": "Extended Wojak meme universe. Flat 2D drawing, crude hand-drawn quality, intentionally uncomfortable.",  "linework": "Uneven, shaky black outlines. Amateur, imperfect strokes.",  "coloring": "Flat colors only. Pale or off-white skin tones preferred. Minimal accent colors.",  "shading": "Minimal or absent. Scribbled single-tone shadows only.",  "strictly_avoid": [  "anime",  "clean illustration",  "3D",  "realistic faces",  "beautified characters"  ]  },  "emotion_to_abstraction_logic": {  "instruction": "Based on detected emotion, RANDOMLY select Wojak-compatible exaggerations.",  "allowed_abstractions": [  "oversized or hollow head",  "big brain",  "drooping or empty eyes",  "exaggerated wrinkles",  "tears, drool, blush",  "asymmetrical smug grin",  "awkward skull proportions"  ],  "randomization_rule": "Exaggerations must vary between generations but always remain emotionally coherent."  },  "subject_translation_rules": {  "identity_handling": "Discard facial identity completely. Preserve only emotional tone and gender.",  "pose_translation": "Adapt posture into Wojak-style awkward or slouched pose.",  "gender_expression": "Gender should influence hairstyle, clothing silhouette, and Wojak variant choice only.",  "clothing": "Simplified Wojak-style clothing shirt with flat colors."  },  "character_integration": {  "body_proportions": "Classic Wojak proportions: oversized or distorted head, thin neck, minimal torso.",  "pose": "Static, uncomfortable, emotionally expressive stance."  },  "output_requirements": {  "framing": "Bust or half-body. Face dominates the image.",  "background": "Plain white or very light gray only.",  "final_quality": "Low-fidelity meme drawing. Should feel ironic, raw, or slightly disturbing."  },  "negative_prompt": {  "forbidden": [  "portrait likeness",  "face tracing",  "realistic anatomy",  "cute or clean cartoon style",  "smooth shading",  "symmetrical beauty"  ],  "enforcement": "If the face starts to resemble the real subject, reduce resemblance and reapply canonical Wojak face structures."  } }` },
@@ -81,237 +85,228 @@
         { id: "race-car-mod", url: "https://www.promptbul.org/prompts/race-car-modification", prompt: `(Based on source image), transform the vehicle into a highly modified street racer, adopting the aggressive tuning aesthetic inspired by "Fast and Furious: Tokyo Drift" and "Need for Speed" video games. Install a complete aftermarket widebody kit. This includes an aggressive front bumper with large air intakes and a low splitter, deep extended side skirts, and a vented hood that is painted in the exact same color as the car's body, maintaining a uniform color across the entire vehicle. Add a prominent large rear GT wing spoiler. The car has lowered suspension and large, deep-dish multi-spoke custom tuning wheels with stretched low-profile tires. Crucially, the original car model identity, the car's original paint color, the entire background environment, lighting conditions, shadows, and camera angle remain exactly the same as the source photo. Realistic automotive photography style.` },
         { id: "koca-kafa", url: "https://www.promptbul.org/prompts/koca-kafa", prompt: `Create a surreal, hyper-realistic portrait where the user appears with an oversized, extremely detailed head that they are physically holding with both hands.  The head should be massive and highly realistic, matching the user’s face reference (face, accesories,clothes, skin texture, hair).  The body is intentionally small, hyper realistic, but anatomically believable enough to hold the head. The hands should grip the oversized head naturally—one hand supporting the jaw/cheek area, the other holding the side or chin—matching the surreal fashion vibe of the reference.  Outfit:  As in the uploaded reference image  Pose: The small body stands slightly leaned forward under the weight of the head. Arms extended downward, holding the huge head in a “carrying” posture. Fingers curved naturally around the enlarged head.  Scene: As in the uploaded reference image  Style & Lighting: Hyper-realistic, soft daylight, crisp textures, Fuji-analog inspired clarity and color. Slight vignette and mild grain for premium editorial finishing.  The giant head must cast correct shadows on the body and hands. Compositing must be seamless.` },
         { id: "meslekler", url: "https://www.promptbul.org/prompts/meslekler", prompt: `  1. Zengin/Arap Şeyhi (Para lazım dediğinde): The man in the reference image wearing a traditional white Arab Thawb and a red-checkered Keffiyeh with an Agal on his head.  Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  2. Özel Şoför (Beni alır mısın dediğinde): The man in the reference image wearing a professional black chauffeur uniform with a matching black peak cap, white dress shirt and black tie underneath. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  3. Bahçıvan (Çiçek alabilir misin dediğinde): The man in the reference image wearing green denim overalls (dungarees) over a green t-shirt, wearing a wide-brimmed straw hat, rustic gardener style.  Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  4. Google Çalışanı (Bunun anlamı ne dediğinde): The man in the reference image wearing a white t-shirt with a colorful 'Google' logo on the chest, wearing a matching white baseball cap with the Google logo,  Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes.     ——————————  5. Dev Su Şişesi (Susadım dediğinde): The man in the uploaded image wearing a giant, transparent water bottle, wearing a white t-shirt and sweatpants Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  6. Palyaço (Canım sıkıldı dediğinde): The man in the uploaded image wearing a colorful polka-dot clown suit, a bright rainbow afro wig, and classic red and white clown face paint with a red nose. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  7. Aşçı (Acıktım dediğinde): The man in the uploaded wearing a professional white chef's jacket and a tall white chef's toque hat, clean and professional culinary style.  Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  8. Kurye (Ekmek alır mısın dediğinde): The man in the uploaded image wearing a pink polo shirt, a pink and white baseball cap, and a large pink square delivery backpack on his shoulders with the word 'sepetyemeği' written on it.. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  9 Doktor (boğazım ağrıyor dediğinde): The man in the uploaded image wearing a white lab coat with a stethoscope around his neck, a blue shirt, and dark trousers. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  10 Çiçekçi (çiçek alabilir misin dediğinde2): The man in the uploaded image wearing a straw hat, green overalls, a red t-shirt, a leather tool belt, and rubber boots, holding a pitchfork. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  11 İşçi ( çamaşır makinesi bozuldu dediğinde): The man in the uploaded image wearing blue overalls with a 'USTA' name tag, a grey t-shirt, a tool belt, and safety boots, holding a wrench. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  12 fotoğrafçı ( fotoğrafımı çeker misin dediğinde): The man in the uploaded image  wearing a professional khaki photography utility vest with multiple pockets, a high-end DSLR camera with a large lens hanging from his neck by a premium leather strap. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  13 Modacı (üstümdeki nasıl olmuş dediğinde): The man in the uploaded image wearing a stylish colorful scarf, trendy oversized glasses, a tape measure around his neck, looking like a French fashion designer. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  14 Kalorifer peteği ( üşüdüm dediğinde ) The man in the uploaded image wearing a large, white, modern household radiator as if it were a vest or a piece of clothing over his chest. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes    ——————————  15 Çöpçü ( aşkım çöpleri atar mısın dediğinde ) The man in the uploaded image wearing a full high-visibility sanitation worker's uniform, including a bright orange hard hat, a reflective orange and blue vest, and dark work pants. He is holding a large, heavy black plastic garbage bag filled with trash in one hand. Do not Change pose or framing. Do not Change faces. Only Change the man’s clothes---------------------------16 Transform the man in the uploaded image so that he is wearing a Super Mario–style plumber costume while keeping his original face, expression, pose, body proportions, hand placement, and camera framing unchanged; replace his current outfit with a bright blue overall, a vivid red long-sleeve shirt, white gloves, brown work boots, and a red cap featuring a generic emblem (do NOT copy Nintendo logos); add realistic plumber equipment by having him hold several durable water pipes in the same hand position as the original object, and optionally include a small tool pouch or wrench attached naturally to his belt; maintain realistic clothing textures, lighting, and environment exactly as in the original photo, and ensure the character remains fully recognizable as the same real person with only the clothing and plumbing materials modified.` },
-        { id: "tost-makinesi", url: "https://www.promptbul.org/prompts/tost-makinesi", prompt: `INPUT: (Uploaded image)  STEP 0 — DEĞİŞMEZ KİLİT KURALLARI (EN KRİTİK) 	•	Yüklenen görseli tek kaynak gerçek olarak kabul et. 	•	Hiçbir şeyi değiştirme: 	•	Yüz kimliği, yaş, ifade, bakış yönü 	•	Poz, vücut oranları, el/parmak sayısı ve şekli 	•	Kıyafet modeli/renkleri, aksesuarlar, saç şekli 	•	Kadraj, kamera açısı, perspektif, arka plan, objelerin yeri 	•	Işık yönü, gölgeler, renk sıcaklığı, sahnenin atmosferi 	•	Sadece “kalite arttır”: daha fazla çözünürlük, daha fazla gerçekçi mikro-doku, daha temiz netlik.  STEP 1 — SAHNE ANALİZİ (ÜRETİMDEN ÖNCE ZORUNLU)  Önce görseli analiz et ve aşağıdakileri içinden tespit et (çıktıda rapor yazmana gerek yok): 	•	Ana insan(lar) kim? Kaç kişi? Hangi kişi(ler) birincil özne? 	•	Kadraj türü: yakın/orta/uzak plan, kamera yüksekliği, lens hissi (wide/normal/tele) 	•	Işık: ana ışık yönü, gölge sertliği, renk sıcaklığı 	•	Arka plan katmanları: foreground / midground / background 	•	Sahnedeki objeler: kıyafet dokuları, aksesuarlar, mobilya/araç/duvar/zemin vb. 	•	Görselin mevcut kusurları: düşük çözünürlük, noise, JPEG artifact, bulanıklık, banding, renk kırılması  STEP 2 — GEOMETRİ VE KADRAJ KİLİTLEME 	•	Tespit edilen ana özneyi ve tüm objeleri aynı koordinatlarda tut. 	•	Perspektifi ve kamera konumunu milim oynatma. 	•	Kadrajı crop etme, zoom değiştirme, yeniden kompozisyon yapma.  STEP 3 — ÇÖZÜNÜRLÜK ARTTIRMA (UPSCALE) 	•	Görseli yüksek çözünürlüğe çıkar: “ultra high resolution, crisp detail, clean edges”. 	•	Düşük çözünürlük kaynaklı artefaktları gider: 	•	JPEG bloklaşması, kırçıllanma, renk banding, moiré, yapay keskinleştirme haleleri temizlensin. 	•	Netlik artışı “yapay keskinlik” gibi durmasın; optik olarak doğal kalsın.  STEP 4 — CİLT ve YÜZ MİKRO-DETAYLARI (KİMLİK SABİT)  Sadece detay ekle, şekil değiştirme: 	•	Doğal cilt dokusu: gözenekler, ince tüyler, mikro kırışıklıklar, hafif cilt parlama bölgeleri 	•	Gerçekçi alt tonlar, damar/kanlanma çok abartısız 	•	Gözlerde doğal yansıma (catchlight) ama iris şekli/renk değişmesin 	•	Dudak/kaş/kirpik tel tel detay (abartmadan) 	•	Makyaj varsa: ürün dokusu daha belirgin ama stil aynı  STEP 5 — KIYAFET / OBJE / MALZEME GERÇEKÇİLİĞİ  Sahnedeki her materyali “gerçek dünya malzemesi” gibi mikrodoku ile güçlendir: 	•	Kumaş: örgü lifleri, dikiş izleri, tüylenme/kat izi 	•	Deri: gözenek/çatlak mikro dokusu 	•	Metal: mikroskobik çizikler, yumuşak yansımalar 	•	Plastik: hafif yüzey pürüzü, düzgün specular 	•	Cam: gerçekçi kırılma/yansıma, parmak izi ekleme (sahnede yoksa uydurma) 	•	Ahşap/taş/zemin: doğal doku, gerçekçi aşınma (varsa)  STEP 6 — IŞIK, RENK ve DOF (Aynı Kalacak, Sadece Temizlenecek) 	•	Işık yönü ve gölgeler aynı; sadece daha temiz ve gerçekçi geçişler. 	•	Renkleri dramatik değiştirme: “same color grading, same white balance”. 	•	Var olan alan derinliği (bokeh) korunacak; sadece daha kaliteli hale gelecek.  STEP 7 — ÇIKTI KALİTE HEDEFİ 	•	Sonuç: “hyper-realistic, ultra-detailed, natural, not overprocessed, not plastic skin” 	•	Keskinlik: detaylı ama doğal; “no crunchy sharpening”.  ⸻  NEGATIVE PROMPT (ÇOK ÖNEMLİ)  Aşağıdakileri kesinlikle yapma: 	•	face swap, identity change, different person, age change 	•	pose change, body reshaping, different framing, crop, zoom 	•	extra fingers, missing fingers, warped hands, altered anatomy 	•	new objects, removed objects, background replaced 	•	heavy beauty filter, plastic skin, waxy face, over-smoothing 	•	anime, cartoon, illustration, painting, CGI look 	•	halo, oversharpening, HDR exaggeration, unnatural contrast 	•	text, watermark, logo` },
+        { id: "tost-makinesi", url: "https://www.promptbul.org/prompts/tost-makinesi", prompt: `INPUT: (Uploaded image)  STEP 0 — DEĞİŞMEZ KİLİT KURALLARI (EN KRİTİK)     •    Yüklenen görseli tek kaynak gerçek olarak kabul et.     •    Hiçbir şeyi değiştirme:     •    Yüz kimliği, yaş, ifade, bakış yönü     •    Poz, vücut oranları, el/parmak sayısı ve şekli     •    Kıyafet modeli/renkleri, aksesuarlar, saç şekli     •    Kadraj, kamera açısı, perspektif, arka plan, objelerin yeri     •    Işık yönü, gölgeler, renk sıcaklığı, sahnenin atmosferi     •    Sadece “kalite arttır”: daha fazla çözünürlük, daha fazla gerçekçi mikro-doku, daha temiz netlik.  STEP 1 — SAHNE ANALİZİ (ÜRETİMDEN ÖNCE ZORUNLU)  Önce görseli analiz et ve aşağıdakileri içinden tespit et (çıktıda rapor yazmana gerek yok):     •    Ana insan(lar) kim? Kaç kişi? Hangi kişi(ler) birincil özne?     •    Kadraj türü: yakın/orta/uzak plan, kamera yüksekliği, lens hissi (wide/normal/tele)     •    Işık: ana ışık yönü, gölge sertliği, renk sıcaklığı     •    Arka plan katmanları: foreground / midground / background     •    Sahnedeki objeler: kıyafet dokuları, aksesuarlar, mobilya/araç/duvar/zemin vb.     •    Görselin mevcut kusurları: düşük çözünürlük, noise, JPEG artifact, bulanıklık, banding, renk kırılması  STEP 2 — GEOMETRİ VE KADRAJ KİLİTLEME     •    Tespit edilen ana özneyi ve tüm objeleri aynı koordinatlarda tut.     •    Perspektifi ve kamera konumunu milim oynatma.     •    Kadrajı crop etme, zoom değiştirme, yeniden kompozisyon yapma.  STEP 3 — ÇÖZÜNÜRLÜK ARTTIRMA (UPSCALE)     •    Görseli yüksek çözünürlüğe çıkar: “ultra high resolution, crisp detail, clean edges”.     •    Düşük çözünürlük kaynaklı artefaktları gider:     •    JPEG bloklaşması, kırçıllanma, renk banding, moiré, yapay keskinleştirme haleleri temizlensin.     •    Netlik artışı “yapay keskinlik” gibi durmasın; optik olarak doğal kalsın.  STEP 4 — CİLT ve YÜZ MİKRO-DETAYLARI (KİMLİK SABİT)  Sadece detay ekle, şekil değiştirme:     •    Doğal cilt dokusu: gözenekler, ince tüyler, mikro kırışıklıklar, hafif cilt parlama bölgeleri     •    Gerçekçi alt tonlar, damar/kanlanma çok abartısız     •    Gözlerde doğal yansıma (catchlight) ama iris şekli/renk değişmesin     •    Dudak/kaş/kirpik tel tel detay (abartmadan)     •    Makyaj varsa: ürün dokusu daha belirgin ama stil aynı  STEP 5 — KIYAFET / OBJE / MALZEME GERÇEKÇİLİĞİ  Sahnedeki her materyali “gerçek dünya malzemesi” gibi mikrodoku ile güçlendir:     •    Kumaş: örgü lifleri, dikiş izleri, tüylenme/kat izi     •    Deri: gözenek/çatlak mikro dokusu     •    Metal: mikroskobik çizikler, yumuşak yansımalar     •    Plastik: hafif yüzey pürüzü, düzgün specular     •    Cam: gerçekçi kırılma/yansıma, parmak izi ekleme (sahnede yoksa uydurma)     •    Ahşap/taş/zemin: doğal doku, gerçekçi aşınma (varsa)  STEP 6 — IŞIK, RENK ve DOF (Aynı Kalacak, Sadece Temizlenecek)     •    Işık yönü ve gölgeler aynı; sadece daha temiz ve gerçekçi geçişler.     •    Renkleri dramatik değiştirme: “same color grading, same white balance”.     •    Var olan alan derinliği (bokeh) korunacak; sadece daha kaliteli hale gelecek.  STEP 7 — ÇIKTI KALİTE HEDEFİ     •    Sonuç: “hyper-realistic, ultra-detailed, natural, not overprocessed, not plastic skin”     •    Keskinlik: detaylı ama doğal; “no crunchy sharpening”.  ⸻  NEGATIVE PROMPT (ÇOK ÖNEMLİ)  Aşağıdakileri kesinlikle yapma:     •    face swap, identity change, different person, age change     •    pose change, body reshaping, different framing, crop, zoom     •    extra fingers, missing fingers, warped hands, altered anatomy     •    new objects, removed objects, background replaced     •    heavy beauty filter, plastic skin, waxy face, over-smoothing     •    anime, cartoon, illustration, painting, CGI look     •    halo, oversharpening, HDR exaggeration, unnatural contrast     •    text, watermark, logo` },
         { id: "nano-banana-pack", url: "https://www.promptbul.org/prompts/nano-banana-pro-prompt-paketi-1", prompt: `Nano Banana Pro Prompt Paketi 1  TRIPLE STACKED PORTRAIT 3 IMAGES – SAME PERSON Base Rule (CRITICAL) Use the uploaded reference image as the only identity reference. All three images must depict the exact same person with identical facial identity. No face variation between frames. The person must be instantly recognizable as the same individual in all three images. COMPOSITION RULE (VERY IMPORTANT) Generate ONE single vertical image divided into THREE horizontal panels stacked vertically (top / middle / bottom), similar to a cinematic triptych. Equal panel heights Clean horizontal separation no borders Same person in all three panels Same face, same identity, same realism Aspect ratio suggestion: 2:3 or 9:16, vertically stacked. PANEL BREAKDOWN (DO NOT MERGE PANELS) 🔹 PANEL 1 — TOP (CLOSE-UP PORTRAIT) Tight close-up of the face Eyes perfectly sharp, centered Snowflakes resting lightly on hair, eyelashes, and skin Calm, neutral expression Minimal background blur, winter tones Emphasis on facial identity and skin texture 📌 Purpose: Identity lock 🔹 PANEL 2 — MIDDLE (MID-SHOT / SIDE PROFILE) Same person, mid-shot or slight side profile Holding a transparent umbrella OR looking sideways into snowfall Snowy forest or winter park background Scarf and coat clearly visible Cinematic depth of field 📌 Purpose: Context + environment 🔹 PANEL 3 — BOTTOM (FRONT-FACING / EDITORIAL) Front-facing portrait or slightly wider framing Person looking directly into camera Strong but soft editorial winter mood Snow falling in foreground and background Balanced, symmetrical composition 📌 Purpose: Emotional anchor FACE & ID PRESERVATION (NON-NEGOTIABLE) Identical facial structure across all panels Same: eye shape and spacing nose structure lips jawline cheekbones eyebrow shape Preserve natural asymmetry and skin texture No beautification, no face morphing No age change LIGHTING & COLOR Natural winter daylight or blue-hour light Soft diffused lighting Cold but realistic color temperature Consistent skin tone across all three panels CAMERA & QUALITY DSLR realism Lens: 50mm / 85mm Shallow depth of field Sharp eyes, soft background Ultra-photorealistic Editorial fashion photography quality ❌ NEGATIVE PROMPT (VERY IMPORTANT) no different faces between panels no face swap no identity drift no symmetry correction no doll skin no CGI no illustration no anime no painterly style no fantasy elements STYLE KEYWORDS (END) photorealistic, triple portrait, cinematic winter editorial, identity-locked face, snowfall, fashion photography, shallow depth of field, natural skin texture ——————-——————-——————-  Use (REFERENCE IMAGE) as the face and clothing silhouette reference. Generate a 1x3 vertical cinematic winter love story grid:  Top Frame: • Couple full body from behind • Watching a sunset over frozen river & snowy mountains • Warm orange/purple sky gradient • Snow on ground and coats  Middle Frame: • Romantic interaction pose (he gently touches her hair or forehead) • Natural smiles, cozy close distance • Cold blue winter tones, visible snowflakes  Bottom Frame: • Couple in close-up emotional connection • Warm eyes, soft lips, noses close but not touching • Cinematic shallow focus, snow particles  Global Rules: • Keep identity exactly matched to (REFERENCE IMAGE) • Keep clothing consistent: dark coats + matching winter scarves • High-resolution realistic photography • Composition clean and symmetrical  Negative Prompt: no changes in identity, no extra limbs, no extra people, no unnatural accessories  ——————-——————-——————-  Use (REFERENCE IMAGE) as the only source of identity, facial details, hairstyle, skin tone, and overall clothing silhouette. Create a 1x2 vertical grid couple winter scene:  Top Frame: • Couple close together, leaning heads with gentle smiles • Snowy forest in the background • Cinematic winter atmosphere, soft falling snow • Sharp focus on faces, shallow depth of field  Bottom Frame: • Same couple facing each other closely • Romantic eye contact, natural soft expressions • Snowflakes visible on hair & clothes • Blue-ish cold tones, cozy feeling, cinematic lighting  Global Rules: • Keep original pose inspiration, proportions, gender, accessories, hair color, and clothing type • Add winter elements only breath mist if needed • Highly-realistic photography, 4K quality • Background always snowy outdoors  Negative Prompt: no new characters, no distortions, no cartoon style, no pose anomalies  ——————-——————-——————-  Use (REFERENCE IMAGE) as identity and pose reference. Keep the original faces and clothing silhouettes but:  • Add matching thick red scarves to both • Add falling snow and visible frosty breath • Background: snowy forest with soft bokeh • Couple holding a heart-shaped snowball together • Warm romantic mood, intimate connection • Skin and hair detailed, realistic lighting  Negative Prompt: no glove mismatches, no changing facial identity, no unrealistic props` },
         { id: "True Identity Enhancer", url: "none", prompt: `Enhance the portrait while strictly preserving the subject's identity with accurate facial geometry. Do not change their expression or face shape. Only allow subtle feature cleanup without altering who they are. Keep the exact same background from the reference image. No replacements, no changes, no new objects, no layout shifts. The environment must look identical. The image must be recreated as if it was shot on a Sony A1, using an 85mm f1.4 lens, at f1.6, ISO 100, 1/200 shutter speed, cinematic shallow depth of field, perfect facial focus, and an editorial-neutral color profile. This Sony A1+ 85mm f1.4 setup is mandatory. The final image must clearly look like premium full-frame Sony A1 quality. Lighting must match the exact direction, angle, and mood of the reference photo. Upgrade the lighting into a cinematic, subject-focused style: soft directional light, warm highlights, cool shadows, deeper contrast, expanded dynamic range, micro-contrast boost, smooth gradations, and zero harsh shadows. Maintain neutral premium color tone, cinematic contrast curve, natural saturation, real skin texture (not plastic), and subtle film grain. No fake glow, no runway lighting, no oversmoothing. Render in 4K resolution, 10-bit color, cinematic editorial style, premium clarity, portrait crop, and keep the original environmental vibe untouched. Re-render the subject with improved realism, depth, texture, and lighting while keeping identity and background fully preserved. NEGATIVE INSTRUCTIONS: No new background. No background change. No overly dramatic lighting. No face morphing. No fake glow. No flat lighting. No over-smooth skin.` },
         { id: "Male and Famale 3 frame", url: "none", prompt: `An ultra-realistic selfie photo of a male and female couple with faces 100% identical to the uploaded reference photo, lying side-by-side on fresh green grass, top-down camera angle (taken from above). Cheerful and natural facial expressions, created in 3 consecutive frames: frame 1: one eye closed while smiling softly frame 2: looking into each other's eyes frame 3: pouting/sulking expression The shape of both their faces, eyes, nose, and smiles must be similar to the reference. Golden hour lighting in the late afternoon, warm sunlight illuminating their faces, soft shadows. Hair looks natural, gently blown by the wind. Realistic photo style, candid couple photo, natural skin texture, high detail, sharp focus, photorealistic, 4K quality. Natural green grass background, relaxed romantic atmosphere, not exaggerated, looks like a real camera photo. 9:16 aspect ratio. ` },
         { id: "The MacBook Reflection", url: "none", prompt: `Subject 1: Guy in the image Subject 2: Girl in the image A downward-angled photograph captures the active MacBook screen filling nearly the entire frame, its glossy surface reflecting faint ambient light while revealing subtle pixel-grid texture from the close proximity, with only a thin strip of the keyboard visible along the lower edge. The digital workspace shows a dark-themed Spotify “Liked Songs” window on the left and a large Photo Booth live-preview window on the right, where both Subjects appear side-by-side in a dim bedroom. They are still wearing the same oversized black hoodies, but the hoods rest back enough for their faces to remain fully visible, allowing natural light to fall cleanly across their expressions. The hoodie fabric forms soft folds and textured shadows around their shoulders and necklines, framing their faces without obscuring them. The couple reclines against an off-white wall and lightly rumpled bedding, leaning comfortably toward one another; the Guy holds a phone in his right hand, the clear protective case catching small screen reflections, while the Girl rests closely beside him, their proximity creating realistic overlapping shadows and gentle shared warmth in the frame. Ambient room lighting mixes with the cool glow of the MacBook screen, producing lifelike gradients on their skin, soft directional shading beneath their jawlines, and subtle highlights on foreheads and cheeks. Deep blacks from the interface, cool digital blues, muted greens, and warm skin tones combine into a natural, nocturnal color palette that feels candid and unedited. The full scene carries an HD, ultra-realistic, authentic atmosphere with natural imperfections—tiny screen reflections, soft moiré patterns, slight dust on the glass—mirroring a real late-night moment taken by an iPhone camera. Do not change Subjects’ facial features. Subjects must look 1000% identical to uploaded images.` },
         { id: "BMW içinde görsel", url: "none", prompt: `Buatkan foto Seorang pemuda duduk di kursi pengemudi mobil bmw, mengenakan jaket prada . Dia memegang setir kanan dengan tangan kanannya sambil melebarkan lengan kirinya ke depan untuk mengambil foto selfie kamera depan. Interior mobil dirinci dengan lampu kabin diterangi, layar infotainment, pergeseran gigi otomatis, dan kursi kulit hitam. Foto diambil pada malam hari, dengan jendela samping menunjukkan jalan kota diterangi oleh lampu jalan dan etalase. Pencahayaan interior yang hangat bercampur dengan lampu kota yang dingin di luar.` },
         { id: "Tarlada Tshirt ile ", url: "none", prompt: `Prompt 1: Full-body fashion portrait of the reference person(dame face, hairstyle, and features fron The reference photo). The male modelo is standig in a grassy field, wearing a oversized white T-shirt and black leg pants. Capture from The front view, with a clean background of talla Golden grass. Soft natural lighting enhances sin textura and facial details, maintaining hiperealistic sharpness. the composición reflects comercial fashion photography with a minimalista, editorial tone. sligvt depth of field creates layered dimensión, glossy finish, hight resolución, cinemática realism` },
-        { id: "None", url: "none", prompt: `` },
-        { id: "None", url: "none", prompt: `` },
-        { id: "None", url: "none", prompt: `` },
-        { id: "None", url: "none", prompt: `` },
+        { id: "None1", url: "none1", prompt: `` },
+        { id: "None2", url: "none2", prompt: `` },
+        { id: "None3", url: "none3", prompt: `` },
+        { id: "None4", url: "none4", prompt: `` },
+
     ];
 
-    // --- FAVORİ YÖNETİMİ ---
-    const STORAGE_KEY = 'gemini_pinned_prompts';
-    function getPinnedIds() {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const STORAGE_PIN_KEY = 'gemini_pinned_prompts_v2';
+    const STORAGE_ORDER_KEY = 'gemini_normal_order';
+    const STORAGE_NAMES_KEY = 'gemini_custom_names';
+
+    function getPinnedIds() { return JSON.parse(localStorage.getItem(STORAGE_PIN_KEY) || '[]'); }
+    function getNormalOrder() { return JSON.parse(localStorage.getItem(STORAGE_ORDER_KEY) || '[]'); }
+    function getCustomNames() { return JSON.parse(localStorage.getItem(STORAGE_NAMES_KEY) || '{}'); }
+
+    function saveOrder(containerId) {
+        const container = document.getElementById(containerId);
+        const currentIds = Array.from(container.querySelectorAll('.prompt-item')).map(item => item.dataset.id);
+
+        if (containerId === 'pinned-list-container') {
+            localStorage.setItem(STORAGE_PIN_KEY, JSON.stringify(currentIds));
+        } else {
+            localStorage.setItem(STORAGE_ORDER_KEY, JSON.stringify(currentIds));
+        }
     }
+
+    function saveCustomName(id, newName) {
+        const names = getCustomNames();
+        if (newName && newName.trim() !== "") {
+            names[id] = newName.trim();
+        } else {
+            delete names[id];
+        }
+        localStorage.setItem(STORAGE_NAMES_KEY, JSON.stringify(names));
+        renderList();
+    }
+
     function togglePin(id) {
         let pins = getPinnedIds();
         if (pins.includes(id)) {
-            pins = pins.filter(p => p !== id); // Çıkar
+            pins = pins.filter(p => p !== id);
         } else {
-            pins.push(id); // Ekle
+            pins.push(id);
         }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
-        renderList(); // Listeyi yenile
+        localStorage.setItem(STORAGE_PIN_KEY, JSON.stringify(pins));
+        renderList();
     }
 
-    // --- CSS STİLLERİ ---
     const css = `
         #gemini-prompt-toggle {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
+            position: fixed; top: 50%; right: 20px; transform: translateY(-50%);
+            width: 50px; height: 50px;
             background: linear-gradient(135deg, #4285F4, #D96570);
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 9999;
+            border-radius: 50%; cursor: pointer; z-index: 9999;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            border: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: white; border: none;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #gemini-prompt-toggle:hover {
-            transform: translateY(-50%) scale(1.1);
-        }
+        #gemini-prompt-toggle:hover { transform: translateY(-50%) scale(1.1); }
+
         #gemini-prompt-panel {
-            position: fixed;
-            top: 50%;
-            right: 80px;
+            position: fixed; top: 50%; right: 80px;
             transform: translateY(-50%) translateX(20px);
-            width: 340px;
-            background: #1e1f20;
-            border: 1px solid #444;
-            border-radius: 16px;
-            padding: 20px;
-            z-index: 9998;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            width: 340px; background: #1e1f20; border: 1px solid #444;
+            border-radius: 16px; padding: 20px; z-index: 9998;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
+            max-height: 80vh; display: flex; flex-direction: column;
         }
-        #gemini-prompt-panel.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(-50%) translateX(0);
-        }
+        #gemini-prompt-panel.active { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0); }
+
         .panel-header {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            color: #e3e3e3;
-            flex-shrink: 0;
+            font-size: 18px; font-weight: bold; margin-bottom: 10px;
+            border-bottom: 1px solid #444; padding-bottom: 10px; color: #e3e3e3; flex-shrink: 0;
         }
-        #prompt-list-container {
-            overflow-y: auto;
-            flex-grow: 1;
-            padding-right: 5px;
-        }
-        /* Scrollbar */
+
+        #prompt-list-container { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
         #prompt-list-container::-webkit-scrollbar { width: 6px; }
         #prompt-list-container::-webkit-scrollbar-track { background: transparent; }
         #prompt-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
+        .list-section-header {
+            font-size: 12px; text-transform: uppercase; color: #888;
+            margin: 15px 0 5px 5px; font-weight: bold; letter-spacing: 0.5px;
+        }
+        .sortable-list { min-height: 20px; padding-bottom: 10px; }
+
         .prompt-item {
-            background: #2d2e2f;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #2d2e2f; border-radius: 8px; padding: 10px;
+            margin-bottom: 8px; cursor: grab; border: 1px solid transparent;
+            transition: background 0.2s; display: flex; justify-content: space-between;
+            align-items: center; user-select: none;
         }
-        .prompt-item:hover {
-            background: #3c4043;
-            border-color: #4285f4;
-        }
-        .prompt-item.pinned {
-            background: #2a331f; /* Favori ise hafif yeşilimsi/farklı arka plan */
-            border: 1px solid #7cb342;
-        }
-        .prompt-content {
-            flex-grow: 1;
-            min-width: 0; /* Text overflow için gerekli */
-        }
-        .prompt-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #8ab4f8;
-            margin-bottom: 4px;
-            text-transform: capitalize;
-        }
-        .prompt-desc {
-            font-size: 12px;
-            color: #bdc1c6;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .prompt-item:active { cursor: grabbing; }
+        .prompt-item:hover { background: #3c4043; border-color: #4285f4; }
+        .prompt-item.pinned { background: #2a331f; border: 1px solid #7cb342; }
+        .prompt-item.dragging { opacity: 0.5; background: #4a4d50; border: 1px dashed #999; }
 
-        /* Pin Butonu */
-        .pin-btn {
-            background: transparent;
-            border: none;
-            color: #5f6368;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
-            margin-left: 10px;
-            border-radius: 50%;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .pin-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
-        .prompt-item.pinned .pin-btn {
-            color: #7cb342; /* Aktif pin rengi */
-            transform: rotate(45deg); /* Pin saplanmış efekti */
-        }
+        .prompt-content { flex-grow: 1; min-width: 0; margin-right: 5px; }
+        .prompt-title { font-size: 14px; font-weight: 600; color: #8ab4f8; margin-bottom: 4px; text-transform: capitalize; }
+        .prompt-desc { font-size: 12px; color: #bdc1c6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Toast */
+        .action-buttons { display: flex; align-items: center; gap: 2px; }
+
+        .icon-btn {
+            background: transparent; border: none; color: #5f6368;
+            font-size: 16px; cursor: pointer; padding: 6px;
+            border-radius: 50%; transition: all 0.2s; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .pin-btn.active { color: #7cb342; transform: rotate(45deg); }
+        .edit-btn:hover { color: #4285F4; }
+
         #copy-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(50px);
-            background: #34a853;
-            color: white;
-            padding: 10px 24px;
-            border-radius: 24px;
-            font-weight: bold;
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 10001;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(50px);
+            background: #34a853; color: white; padding: 10px 24px; border-radius: 24px;
+            font-weight: bold; opacity: 0; transition: all 0.3s; z-index: 10001;
         }
-        #copy-toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
+        #copy-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     `;
 
     GM_addStyle(css);
 
-    // --- UI OLUŞTURMA ---
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    // Toggle Butonu
     const toggleBtn = document.createElement('button');
     toggleBtn.id = 'gemini-prompt-toggle';
     toggleBtn.innerHTML = '🪄';
     container.appendChild(toggleBtn);
 
-    // Panel
     const panel = document.createElement('div');
     panel.id = 'gemini-prompt-panel';
     panel.innerHTML = '<div class="panel-header">Görsel Promptları</div>';
 
-    // Liste Konteyneri (Scroll buraya uygulanacak)
-    const listContainer = document.createElement('div');
-    listContainer.id = 'prompt-list-container';
-    panel.appendChild(listContainer);
+    const scrollContainer = document.createElement('div');
+    scrollContainer.id = 'prompt-list-container';
+    panel.appendChild(scrollContainer);
     container.appendChild(panel);
 
-    // Toast Mesajı
     const toast = document.createElement('div');
     toast.id = 'copy-toast';
     toast.innerText = 'Kopyalandı! ✅';
     document.body.appendChild(toast);
 
-    // --- LİSTE RENDERING (SIRALAMA VE ÇİZME) ---
     function renderList() {
-        listContainer.innerHTML = ''; // Temizle
+        scrollContainer.innerHTML = '';
         const pinnedIds = getPinnedIds();
+        const savedNormalOrder = getNormalOrder();
 
-        // Listeyi Sırala: Önce favoriler, sonra diğerleri
-        const sortedList = [...promptList].sort((a, b) => {
-            const aPin = pinnedIds.includes(a.id);
-            const bPin = pinnedIds.includes(b.id);
-            if (aPin && !bPin) return -1;
-            if (!aPin && bPin) return 1;
-            return 0; // Orijinal sıra
+        let pinnedItems = [];
+        let normalItems = [];
+
+        if (typeof promptList !== 'undefined') {
+             promptList.forEach(item => {
+                if (pinnedIds.includes(item.id)) {
+                    pinnedItems.push(item);
+                } else {
+                    normalItems.push(item);
+                }
+            });
+        }
+
+        pinnedItems.sort((a, b) => pinnedIds.indexOf(a.id) - pinnedIds.indexOf(b.id));
+        normalItems.sort((a, b) => {
+            const indexA = savedNormalOrder.indexOf(a.id);
+            const indexB = savedNormalOrder.indexOf(b.id);
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
         });
 
-        sortedList.forEach(data => {
-            const isPinned = pinnedIds.includes(data.id);
-            const item = document.createElement('div');
-            item.className = `prompt-item ${isPinned ? 'pinned' : ''}`;
+        if (pinnedItems.length > 0) {
+            const pinHeader = document.createElement('div');
+            pinHeader.className = 'list-section-header';
+            pinHeader.innerText = 'Favoriler';
+            scrollContainer.appendChild(pinHeader);
 
-            const displayTitle = data.id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const pinListDiv = document.createElement('div');
+            pinListDiv.id = 'pinned-list-container';
+            pinListDiv.className = 'sortable-list';
+            createListItems(pinnedItems, pinListDiv, true);
+            scrollContainer.appendChild(pinListDiv);
+            setupDragAndDrop('pinned-list-container');
+        }
+
+        const normalHeader = document.createElement('div');
+        normalHeader.className = 'list-section-header';
+        normalHeader.innerText = 'Tümü';
+        scrollContainer.appendChild(normalHeader);
+
+        const normalListDiv = document.createElement('div');
+        normalListDiv.id = 'normal-list-container';
+        normalListDiv.className = 'sortable-list';
+        createListItems(normalItems, normalListDiv, false);
+        scrollContainer.appendChild(normalListDiv);
+        setupDragAndDrop('normal-list-container');
+    }
+
+    function createListItems(items, parentContainer, isPinnedSection) {
+        const customNames = getCustomNames();
+
+        items.forEach(data => {
+            const item = document.createElement('div');
+            item.className = `prompt-item ${isPinnedSection ? 'pinned' : ''}`;
+            item.draggable = true;
+            item.dataset.id = data.id;
+
+            const originalTitle = data.id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const displayTitle = customNames[data.id] || originalTitle;
             const displayPrompt = data.prompt && data.prompt.trim() !== "" ? data.prompt : "(İçerik Boş)";
 
-            // Sol Taraf (Metinler)
             const contentDiv = document.createElement('div');
             contentDiv.className = 'prompt-content';
             contentDiv.innerHTML = `
@@ -319,22 +314,38 @@
                 <div class="prompt-desc">${displayPrompt}</div>
             `;
 
-            // Sağ Taraf (Pin Butonu)
-            const pinBtn = document.createElement('button');
-            pinBtn.className = 'pin-btn';
-            pinBtn.innerHTML = '📌';
-            pinBtn.title = isPinned ? "Favorilerden Çıkar" : "Başa Tuttur";
+            const btnGroup = document.createElement('div');
+            btnGroup.className = 'action-buttons';
 
-            // Pin Tıklama Olayı
+            const editBtn = document.createElement('button');
+            editBtn.className = 'icon-btn edit-btn';
+            editBtn.innerHTML = '✏️';
+            editBtn.title = "İsmi Değiştir";
+
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const newName = prompt("Bu prompt için yeni isim girin:", displayTitle);
+                if (newName !== null) {
+                    saveCustomName(data.id, newName);
+                }
+            });
+
+            const pinBtn = document.createElement('button');
+            pinBtn.className = `icon-btn pin-btn ${isPinnedSection ? 'active' : ''}`;
+            pinBtn.innerHTML = '📌';
+            pinBtn.title = isPinnedSection ? "Favorilerden Çıkar" : "Başa Tuttur";
+
             pinBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Kopyalamayı engelle, sadece pinle
+                e.stopPropagation();
                 togglePin(data.id);
             });
 
-            // Ana Kutu Tıklama Olayı (Kopyalama)
+            btnGroup.appendChild(editBtn);
+            btnGroup.appendChild(pinBtn);
+
             item.addEventListener('click', () => {
                 if(!data.prompt) {
-                    alert("Bu başlık için henüz prompt metni girilmemiş!");
+                    alert("Bu başlık için prompt yok!");
                     return;
                 }
                 GM_setClipboard(data.prompt);
@@ -342,18 +353,58 @@
             });
 
             item.appendChild(contentDiv);
-            item.appendChild(pinBtn);
-            listContainer.appendChild(item);
+            item.appendChild(btnGroup);
+            parentContainer.appendChild(item);
         });
     }
 
-    // İlk yükleme
-    renderList();
+    function setupDragAndDrop(containerId) {
+        const listContainer = document.getElementById(containerId);
 
-    // --- OLAYLAR ---
+        listContainer.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('prompt-item')) {
+                e.target.classList.add('dragging');
+            }
+        });
+
+        listContainer.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('prompt-item')) {
+                e.target.classList.remove('dragging');
+                saveOrder(containerId);
+            }
+        });
+
+        listContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(listContainer, e.clientY);
+            const draggable = document.querySelector('.dragging');
+            if (!draggable || draggable.parentElement.id !== containerId) return;
+
+            if (afterElement == null) {
+                listContainer.appendChild(draggable);
+            } else {
+                listContainer.insertBefore(draggable, afterElement);
+            }
+        });
+    }
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.prompt-item:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
     toggleBtn.addEventListener('click', () => {
         panel.classList.toggle('active');
         toggleBtn.innerHTML = panel.classList.contains('active') ? '✖' : '🪄';
+        if (panel.classList.contains('active')) renderList();
     });
 
     function showToast() {
@@ -361,12 +412,13 @@
         setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // Dışarı tıklayınca kapat
     document.addEventListener('click', (e) => {
         if (!panel.contains(e.target) && !toggleBtn.contains(e.target) && panel.classList.contains('active')) {
             panel.classList.remove('active');
             toggleBtn.innerHTML = '🪄';
         }
     });
+
+    renderList();
 
 })();
